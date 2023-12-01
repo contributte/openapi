@@ -2,7 +2,7 @@
 
 <p align=center>
   <a href="https://github.com/contributte/openapi/actions"><img src="https://badgen.net/github/checks/contributte/openapi/master?cache=300"></a>
-  <a href="https://coveralls.io/r/contributte/openapi"> <img src="https://badgen.net/coveralls/c/github/contributte/openapi?cache=300"> </a>
+  <a href="https://coveralls.io/r/contributte/openapi"><img src="https://badgen.net/coveralls/c/github/contributte/openapi"></a>
   <a href="https://packagist.org/packages/contributte/openapi"> <img src="https://badgen.net/packagist/dm/contributte/openapi"> </a>
   <a href="https://packagist.org/packages/contributte/openapi"> <img src="https://badgen.net/packagist/v/contributte/openapi"> </a>
 </p>
