@@ -2,6 +2,7 @@
 
 namespace Contributte\OpenApi\Tracy;
 
+use Contributte\OpenApi\Schema\OpenApi;
 use Tracy\IBarPanel;
 
 class SwaggerPanel implements IBarPanel
@@ -28,8 +29,8 @@ class SwaggerPanel implements IBarPanel
 	/** @var array<mixed> */
 	protected array $spec = [];
 
-	/** @var callable */
-	protected $specCallback;
+	/** @var callable|null */
+	protected $specCallback = null;
 
 	/**
 	 * @param array<mixed> $spec
@@ -79,8 +80,11 @@ class SwaggerPanel implements IBarPanel
 	{
 		ob_start();
 		// @codingStandardsIgnoreStart
-		if ($this->specCallback) {
+		if ($this->specCallback !== null) {
 			$spec = call_user_func($this->specCallback);
+			if ($spec instanceof OpenApi) {
+				$spec = $spec->toArray();
+			}
 		} else {
 			$spec = $this->spec;
 		}
