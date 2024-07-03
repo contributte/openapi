@@ -31,6 +31,12 @@ class Parameter
 
 	private ?bool $allowEmptyValue = null;
 
+	private ?string $style = null;
+
+	private ?bool $explode = null;
+
+	private ?bool $allowReserved = null;
+
 	private Schema|Reference|null $schema = null;
 
 	private mixed $example = null;
@@ -38,7 +44,7 @@ class Parameter
 	/** @var mixed[] */
 	private array $examples = [];
 
-	private ?string $style = null;
+	private ?VendorExtensions $vendorExtensions = null;
 
 	public function __construct(string $name, string $in)
 	{
@@ -64,6 +70,10 @@ class Parameter
 		$parameter->setRequired($data['required'] ?? null);
 		$parameter->setDeprecated($data['deprecated'] ?? null);
 		$parameter->setAllowEmptyValue($data['allowEmptyValue'] ?? null);
+		$parameter->setStyle($data['style'] ?? null);
+		$parameter->setExplode($data['explode'] ?? null);
+		$parameter->setAllowReserved($data['allowReserved'] ?? null);
+
 		if (isset($data['schema'])) {
 			if (isset($data['schema']['$ref'])) {
 				$parameter->setSchema(Reference::fromArray($data['schema']));
@@ -74,7 +84,7 @@ class Parameter
 
 		$parameter->setExample($data['example'] ?? null);
 		$parameter->setExamples($data['examples'] ?? []);
-		$parameter->setStyle($data['style'] ?? null);
+		$parameter->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $parameter;
 	}
@@ -125,6 +135,7 @@ class Parameter
 		$data = [];
 		$data['name'] = $this->name;
 		$data['in'] = $this->in;
+
 		if ($this->description !== null) {
 			$data['description'] = $this->description;
 		}
@@ -141,6 +152,18 @@ class Parameter
 			$data['allowEmptyValue'] = $this->allowEmptyValue;
 		}
 
+		if ($this->style !== null) {
+			$data['style'] = $this->style;
+		}
+
+		if ($this->explode !== null) {
+			$data['explode'] = $this->explode;
+		}
+
+		if ($this->allowReserved !== null) {
+			$data['allowReserved'] = $this->allowReserved;
+		}
+
 		if ($this->schema !== null) {
 			$data['schema'] = $this->schema->toArray();
 		}
@@ -153,8 +176,8 @@ class Parameter
 			$data['examples'] = $this->examples;
 		}
 
-		if ($this->style !== null) {
-			$data['style'] = $this->style;
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -208,6 +231,36 @@ class Parameter
 	public function setStyle(?string $style): void
 	{
 		$this->style = $style;
+	}
+
+	public function isExplode(): ?bool
+	{
+		return $this->explode;
+	}
+
+	public function setExplode(?bool $explode): void
+	{
+		$this->explode = $explode;
+	}
+
+	public function isAllowReserved(): ?bool
+	{
+		return $this->allowReserved;
+	}
+
+	public function setAllowReserved(?bool $allowReserved): void
+	{
+		$this->allowReserved = $allowReserved;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

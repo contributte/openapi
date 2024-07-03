@@ -11,6 +11,8 @@ class Tag
 
 	private ?ExternalDocumentation $externalDocs = null;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	public function __construct(string $name)
 	{
 		$this->name = $name;
@@ -24,6 +26,7 @@ class Tag
 		$tag = new Tag($data['name']);
 		$tag->setDescription($data['description'] ?? null);
 		$tag->setExternalDocs(isset($data['externalDocs']) ? ExternalDocumentation::fromArray($data['externalDocs']) : null);
+		$tag->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $tag;
 	}
@@ -43,6 +46,10 @@ class Tag
 
 		if ($this->externalDocs !== null) {
 			$data['externalDocs'] = $this->externalDocs->toArray();
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -71,6 +78,16 @@ class Tag
 	public function getExternalDocs(): ?ExternalDocumentation
 	{
 		return $this->externalDocs;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

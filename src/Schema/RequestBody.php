@@ -12,6 +12,8 @@ class RequestBody
 
 	private bool $required = false;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	/**
 	 * @param mixed[] $data
 	 */
@@ -20,9 +22,12 @@ class RequestBody
 		$requestBody = new RequestBody();
 		$requestBody->setRequired($data['required'] ?? false);
 		$requestBody->setDescription($data['description'] ?? null);
+
 		foreach ($data['content'] ?? [] as $key => $mediaType) {
 			$requestBody->addMediaType($key, MediaType::fromArray($mediaType));
 		}
+
+		$requestBody->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $requestBody;
 	}
@@ -33,17 +38,23 @@ class RequestBody
 	public function toArray(): array
 	{
 		$data = [];
+
 		if ($this->description !== null) {
 			$data['description'] = $this->description;
 		}
 
 		$data['content'] = [];
+
 		foreach ($this->content as $key => $mediaType) {
 			$data['content'][$key] = $mediaType->toArray();
 		}
 
 		if ($this->required) {
 			$data['required'] = true;
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -80,6 +91,16 @@ class RequestBody
 	public function isRequired(): bool
 	{
 		return $this->required;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

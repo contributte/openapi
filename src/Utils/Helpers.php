@@ -10,6 +10,7 @@ class Helpers
 		if (is_array($left) && is_array($right)) {
 			reset($left);
 			$firstKey = key($left);
+
 			foreach ($left as $key => $val) {
 				if ($firstKey === 0 && is_int($key)) {
 					$right[] = $val;

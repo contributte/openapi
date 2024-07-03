@@ -9,12 +9,14 @@ class SecurityScheme
 
 	public const TYPE_API_KEY = 'apiKey';
 	public const TYPE_HTTP = 'http';
+	public const TYPE_MUTUAL_TLS = 'mutualTLS';
 	public const TYPE_OAUTH2 = 'oauth2';
 	public const TYPE_OPEN_ID_CONNECT = 'openIdConnect';
 
 	public const TYPES = [
 		self::TYPE_API_KEY,
 		self::TYPE_HTTP,
+		self::TYPE_MUTUAL_TLS,
 		self::TYPE_OAUTH2,
 		self::TYPE_OPEN_ID_CONNECT,
 	];
@@ -38,9 +40,9 @@ class SecurityScheme
 
 	private string $type;
 
-	private ?string $name = null;
-
 	private ?string $description = null;
+
+	private ?string $name = null;
 
 	private ?string $in = null;
 
@@ -83,6 +85,7 @@ class SecurityScheme
 	{
 		$data = [];
 		$data['type'] = $this->type;
+
 		if ($this->name !== null) {
 			$data['name'] = $this->name;
 		}

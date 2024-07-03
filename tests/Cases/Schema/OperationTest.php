@@ -43,12 +43,12 @@ class OperationTest extends TestCase
 		$operation->addParameter($p3);
 
 		$callbacks = [];
-		$callbacks[] = $callback1 = new Callback([]);
-		$operation->addCallback($callback1);
-		$callbacks[] = $callback2 = new Callback([]);
-		$operation->addCallback($callback2);
-		$callbacks[] = $callback3 = new Reference('ref');
-		$operation->addCallback($callback3);
+		$callbacks['onFirst'] = $callback1 = new Callback([]);
+		$operation->addCallback('onFirst', $callback1);
+		$callbacks['onSecond'] = $callback2 = new Callback([]);
+		$operation->addCallback('onSecond', $callback2);
+		$callbacks['onThird'] = $callback3 = new Reference('ref');
+		$operation->addCallback('onThird', $callback3);
 
 		$securityRequirements = [];
 		$securityRequirements[] = $sr1 = new SecurityRequirement([]);
@@ -98,7 +98,11 @@ class OperationTest extends TestCase
 				['url' => 'https://server-one.example.com'],
 				['url' => 'https://server-two.example.com'],
 			],
-			'callbacks' => [[], [], ['$ref' => 'ref']],
+			'callbacks' => [
+				'onFirst' => [],
+				'onSecond' => [],
+				'onThird' => ['$ref' => 'ref'],
+			],
 		];
 
 		Assert::same($expectedData, $realData);
@@ -115,10 +119,10 @@ class OperationTest extends TestCase
 		Assert::null($operation->getOperationId());
 		Assert::null($operation->getRequestBody());
 		Assert::null($operation->getExternalDocs());
+		Assert::null($operation->getSecurity());
 
 		Assert::same([], $operation->getParameters());
 		Assert::same([], $operation->getCallbacks());
-		Assert::same([], $operation->getSecurity());
 		Assert::same([], $operation->getServers());
 		Assert::same([], $operation->getTags());
 		Assert::same($responses, $operation->getResponses());

@@ -7,6 +7,8 @@ class Info
 
 	private string $title;
 
+	private ?string $summary = null;
+
 	private ?string $description = null;
 
 	private ?string $termsOfService = null;
@@ -16,6 +18,8 @@ class Info
 	private ?License $license = null;
 
 	private string $version;
+
+	private ?VendorExtensions $vendorExtensions = null;
 
 	public function __construct(string $title, string $version)
 	{
@@ -29,10 +33,12 @@ class Info
 	public static function fromArray(array $data): Info
 	{
 		$info = new Info($data['title'], $data['version']);
+		$info->setSummary($data['summary'] ?? null);
 		$info->setDescription($data['description'] ?? null);
 		$info->setTermsOfService($data['termsOfService'] ?? null);
 		$info->setLicense(isset($data['license']) ? License::fromArray($data['license']) : null);
 		$info->setContact(isset($data['contact']) ? Contact::fromArray($data['contact']) : null);
+		$info->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $info;
 	}
@@ -49,6 +55,10 @@ class Info
 			$data['description'] = $this->description;
 		}
 
+		if ($this->summary !== null) {
+			$data['summary'] = $this->summary;
+		}
+
 		if ($this->termsOfService !== null) {
 			$data['termsOfService'] = $this->termsOfService;
 		}
@@ -63,7 +73,16 @@ class Info
 
 		$data['version'] = $this->version;
 
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
+		}
+
 		return $data;
+	}
+
+	public function setSummary(?string $summary): void
+	{
+		$this->summary = $summary;
 	}
 
 	public function setDescription(?string $description): void
@@ -91,6 +110,11 @@ class Info
 		return $this->title;
 	}
 
+	public function getSummary(): ?string
+	{
+		return $this->summary;
+	}
+
 	public function getDescription(): ?string
 	{
 		return $this->description;
@@ -114,6 +138,16 @@ class Info
 	public function getVersion(): string
 	{
 		return $this->version;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

@@ -18,6 +18,8 @@ class Link
 
 	private ?Server $server = null;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	/**
 	 * @param mixed[] $data
 	 */
@@ -30,6 +32,7 @@ class Link
 		$link->setRequestBody($data['requestBody'] ?? null);
 		$link->setDescription($data['description'] ?? null);
 		$link->setServer(isset($data['server']) ? Server::fromArray($data['server']) : null);
+		$link->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $link;
 	}
@@ -73,6 +76,7 @@ class Link
 	public function toArray(): array
 	{
 		$data = [];
+
 		if ($this->operationRef !== null) {
 			$data['operationRef'] = $this->operationRef;
 		}
@@ -97,7 +101,21 @@ class Link
 			$data['server'] = $this->server->toArray();
 		}
 
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
+		}
+
 		return $data;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

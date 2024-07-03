@@ -13,6 +13,12 @@ class Header
 
 	private ?bool $allowEmptyValue = null;
 
+	private ?string $style = null;
+
+	private ?bool $explode = null;
+
+	private ?bool $allowReserved = null;
+
 	private Schema|Reference|null $schema = null;
 
 	private mixed $example = null;
@@ -30,6 +36,10 @@ class Header
 		$header->setRequired($data['required'] ?? null);
 		$header->setDeprecated($data['deprecated'] ?? null);
 		$header->setAllowEmptyValue($data['allowEmptyValue'] ?? null);
+		$header->setStyle($data['style'] ?? null);
+		$header->setExplode($data['explode'] ?? null);
+		$header->setAllowReserved($data['allowReserved'] ?? null);
+
 		if (isset($data['schema'])) {
 			if (isset($data['schema']['$ref'])) {
 				$header->setSchema(Reference::fromArray($data['schema']));
@@ -50,6 +60,7 @@ class Header
 	public function toArray(): array
 	{
 		$data = [];
+
 		if ($this->description !== null) {
 			$data['description'] = $this->description;
 		}
@@ -64,6 +75,18 @@ class Header
 
 		if ($this->allowEmptyValue !== null) {
 			$data['allowEmptyValue'] = $this->allowEmptyValue;
+		}
+
+		if ($this->style !== null) {
+			$data['style'] = $this->style;
+		}
+
+		if ($this->explode !== null) {
+			$data['explode'] = $this->explode;
+		}
+
+		if ($this->allowReserved !== null) {
+			$data['allowReserved'] = $this->allowReserved;
 		}
 
 		if ($this->schema !== null) {
@@ -99,6 +122,21 @@ class Header
 	public function setAllowEmptyValue(?bool $allowEmptyValue): void
 	{
 		$this->allowEmptyValue = $allowEmptyValue;
+	}
+
+	public function setStyle(?string $style): void
+	{
+		$this->style = $style;
+	}
+
+	public function setExplode(?bool $explode): void
+	{
+		$this->explode = $explode;
+	}
+
+	public function setAllowReserved(?bool $allowReserved): void
+	{
+		$this->allowReserved = $allowReserved;
 	}
 
 	public function setSchema(Schema|Reference|null $schema): void

@@ -12,6 +12,8 @@ class ServerVariable
 
 	private ?string $description = null;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	public function __construct(string $default)
 	{
 		$this->default = $default;
@@ -25,6 +27,7 @@ class ServerVariable
 		$variable = new ServerVariable($data['default']);
 		$variable->setDescription($data['description'] ?? null);
 		$variable->setEnum($data['enum'] ?? []);
+		$variable->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $variable;
 	}
@@ -77,7 +80,21 @@ class ServerVariable
 			$data['description'] = $this->description;
 		}
 
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
+		}
+
 		return $data;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }
