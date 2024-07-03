@@ -25,11 +25,10 @@ final class ExamplesTest extends TestCase
 
 	public function testCallbackExample(): void
 	{
-		// TODO callbacks
-		//$rawData = Yaml::parseFile(__DIR__ . '/examples/callback-example.yaml');
-		//$openApi = OpenApi::fromArray($rawData);
-		//$openApiData = $openApi->toArray();
-		//self::assertSameDataStructure($rawData, $openApiData);
+		$rawData = Yaml::parseFile(__DIR__ . '/examples/callback-example.yaml');
+		$openApi = OpenApi::fromArray($rawData);
+		$openApiData = $openApi->toArray();
+		self::assertSameDataStructure($rawData, $openApiData);
 	}
 
 	public function testLinkExample(): void
@@ -67,6 +66,30 @@ final class ExamplesTest extends TestCase
 	public function testUspto(): void
 	{
 		$rawData = Yaml::parseFile(__DIR__ . '/examples/uspto.yaml');
+		$openApi = OpenApi::fromArray($rawData);
+		$openApiData = $openApi->toArray();
+		self::assertSameDataStructure($rawData, $openApiData);
+	}
+
+	public function testWebhooks(): void
+	{
+		$rawData = Yaml::parseFile(__DIR__ . '/examples/webhook-example.yaml');
+		$openApi = OpenApi::fromArray($rawData);
+		$openApiData = $openApi->toArray();
+		self::assertSameDataStructure($rawData, $openApiData);
+	}
+
+	public function testNonOauthScopes(): void
+	{
+		$rawData = Yaml::parseFile(__DIR__ . '/examples/non-oauth-scopes.yaml');
+		$openApi = OpenApi::fromArray($rawData);
+		$openApiData = $openApi->toArray();
+		self::assertSameDataStructure($rawData, $openApiData);
+	}
+
+	public function testRedoclyMuseum(): void
+	{
+		$rawData = Yaml::parseFile(__DIR__ . '/examples/redocly-museum.yaml');
 		$openApi = OpenApi::fromArray($rawData);
 		$openApiData = $openApi->toArray();
 		self::assertSameDataStructure($rawData, $openApiData);

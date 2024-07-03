@@ -30,7 +30,12 @@ class Components
 	private array $links = [];
 
 	/** @var Callback[]|Reference[] */
-	private array $callbacks = []; // @phpstan-ignore-line
+	private array $callbacks = [];
+
+	/** @var PathItem[]|Reference[] */
+	private array $pathItems = [];
+
+	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
 	 * @param mixed[] $data
@@ -38,45 +43,88 @@ class Components
 	public static function fromArray(array $data): Components
 	{
 		$components = new Components();
-		if (isset($data['schemas'])) {
-			foreach ($data['schemas'] as $schemaKey => $schemaData) {
+
+		foreach ($data['schemas'] ?? [] as $schemaKey => $schemaData) {
+			if (isset($schemaData['$ref'])) {
+				$components->setSchema($schemaKey, Reference::fromArray($schemaData));
+			} else {
 				$components->setSchema($schemaKey, Schema::fromArray($schemaData));
 			}
 		}
 
-		if (isset($data['responses'])) {
-			foreach ($data['responses'] as $responseKey => $responseData) {
+		foreach ($data['responses'] ?? [] as $responseKey => $responseData) {
+			if (isset($responseData['$ref'])) {
+				$components->setResponse((string) $responseKey, Reference::fromArray($responseData));
+			} else {
 				$components->setResponse((string) $responseKey, Response::fromArray($responseData));
 			}
 		}
 
-		if (isset($data['parameters'])) {
-			foreach ($data['parameters'] as $parameterKey => $parameterData) {
+		foreach ($data['parameters'] ?? [] as $parameterKey => $parameterData) {
+			if (isset($parameterData['$ref'])) {
+				$components->setParameter($parameterKey, Reference::fromArray($parameterData));
+			} else {
 				$components->setParameter($parameterKey, Parameter::fromArray($parameterData));
 			}
 		}
 
-		if (isset($data['examples'])) {
-			foreach ($data['examples'] as $exampleKey => $exampleData) {
+		foreach ($data['examples'] ?? [] as $exampleKey => $exampleData) {
+			if (isset($exampleData['$ref'])) {
+				$components->setExample($exampleKey, Reference::fromArray($exampleData));
+			} else {
 				$components->setExample($exampleKey, Example::fromArray($exampleData));
 			}
 		}
 
 		foreach ($data['requestBodies'] ?? [] as $requestBodyKey => $requestBodyData) {
-			$components->setRequestBody($requestBodyKey, RequestBody::fromArray($requestBodyData));
+			if (isset($requestBodyData['$ref'])) {
+				$components->setRequestBody($requestBodyKey, Reference::fromArray($requestBodyData));
+			} else {
+				$components->setRequestBody($requestBodyKey, RequestBody::fromArray($requestBodyData));
+			}
 		}
 
 		foreach ($data['headers'] ?? [] as $headerKey => $headerData) {
-			$components->setHeader($headerKey, Header::fromArray($headerData));
+			if (isset($headerData['$ref'])) {
+				$components->setHeader($headerKey, Reference::fromArray($headerData));
+			} else {
+				$components->setHeader($headerKey, Header::fromArray($headerData));
+			}
 		}
 
 		foreach ($data['securitySchemes'] ?? [] as $securitySchemeKey => $securitySchemeData) {
-			$components->setSecurityScheme($securitySchemeKey, SecurityScheme::fromArray($securitySchemeData));
+			if (isset($securitySchemeData['$ref'])) {
+				$components->setSecurityScheme($securitySchemeKey, Reference::fromArray($securitySchemeData));
+			} else {
+				$components->setSecurityScheme($securitySchemeKey, SecurityScheme::fromArray($securitySchemeData));
+			}
+		}
+
+		foreach ($data['callbacks'] ?? [] as $callbackKey => $callbackData) {
+			if (isset($callbackData['$ref'])) {
+				$components->setCallback($callbackKey, Reference::fromArray($callbackData));
+			} else {
+				$components->setCallback($callbackKey, Callback::fromArray($callbackData));
+			}
 		}
 
 		foreach ($data['links'] ?? [] as $linkKey => $linkData) {
-			$components->setLink($linkKey, Link::fromArray($linkData));
+			if (isset($linkData['$ref'])) {
+				$components->setLink($linkKey, Reference::fromArray($linkData));
+			} else {
+				$components->setLink($linkKey, Link::fromArray($linkData));
+			}
 		}
+
+		foreach ($data['pathItems'] ?? [] as $pathItemKey => $pathItemData) {
+			if (isset($pathItemData['$ref'])) {
+				$components->setPathItem($pathItemKey, Reference::fromArray($pathItemData));
+			} else {
+				$components->setPathItem($pathItemKey, PathItem::fromArray($pathItemData));
+			}
+		}
+
+		$components->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $components;
 	}
@@ -121,12 +169,23 @@ class Components
 		$this->links[$name] = $link;
 	}
 
+	public function setCallback(string $name, Callback|Reference $callback): void
+	{
+		$this->callbacks[$name] = $callback;
+	}
+
+	public function setPathItem(string $name, PathItem|Reference $pathItem): void
+	{
+		$this->pathItems[$name] = $pathItem;
+	}
+
 	/**
 	 * @return mixed[]
 	 */
 	public function toArray(): array
 	{
 		$data = [];
+
 		foreach ($this->schemas as $schemaKey => $schema) {
 			$data['schemas'][$schemaKey] = $schema->toArray();
 		}
@@ -159,7 +218,29 @@ class Components
 			$data['links'][$linkKey] = $link->toArray();
 		}
 
+		foreach ($this->callbacks as $callbackKey => $callback) {
+			$data['callbacks'][$callbackKey] = $callback->toArray();
+		}
+
+		foreach ($this->pathItems as $pathItemKey => $pathItem) {
+			$data['pathItems'][$pathItemKey] = $pathItem->toArray();
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
+		}
+
 		return $data;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

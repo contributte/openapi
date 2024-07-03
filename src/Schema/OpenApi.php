@@ -9,10 +9,15 @@ class OpenApi
 
 	private Info $info;
 
+	private ?string $jsonSchemaDialect = null;
+
 	/** @var Server[] */
 	private array $servers = [];
 
-	private Paths $paths;
+	private ?Paths $paths;
+
+	/** @var array<string, PathItem|Reference> */
+	private array $webhooks = [];
 
 	private ?Components $components = null;
 
@@ -24,7 +29,9 @@ class OpenApi
 
 	private ?ExternalDocumentation $externalDocs = null;
 
-	public function __construct(string $openapi, Info $info, Paths $paths)
+	private ?VendorExtensions $vendorExtensions = null;
+
+	public function __construct(string $openapi, Info $info, ?Paths $paths = null)
 	{
 		$this->openapi = $openapi;
 		$this->info = $info;
@@ -39,10 +46,23 @@ class OpenApi
 		$openApi = new OpenApi(
 			$data['openapi'],
 			Info::fromArray($data['info']),
-			Paths::fromArray($data['paths'])
 		);
+
+		if (isset($data['jsonSchemaDialect'])) {
+			$openApi->jsonSchemaDialect = $data['jsonSchemaDialect'];
+		}
+
 		foreach ($data['servers'] ?? [] as $serverData) {
 			$openApi->addServer(Server::fromArray($serverData));
+		}
+
+		if (isset($data['paths'])) {
+			$openApi->paths = Paths::fromArray($data['paths']);
+		}
+
+		foreach ($data['webhooks'] ?? [] as $webhookId => $webhookData) {
+			$webhook = isset($webhookData['$ref']) ? Reference::fromArray($webhookData) : PathItem::fromArray($webhookData);
+			$openApi->webhooks[(string) $webhookId] = $webhook;
 		}
 
 		if (isset($data['components'])) {
@@ -61,6 +81,8 @@ class OpenApi
 			$openApi->addSecurityRequirement(SecurityRequirement::fromArray($security));
 		}
 
+		$openApi->setVendorExtensions(VendorExtensions::fromArray($data));
+
 		return $openApi;
 	}
 
@@ -73,11 +95,21 @@ class OpenApi
 		$data['openapi'] = $this->openapi;
 		$data['info'] = $this->info->toArray();
 
+		if ($this->jsonSchemaDialect !== null) {
+			$data['jsonSchemaDialect'] = $this->jsonSchemaDialect;
+		}
+
 		foreach ($this->servers as $server) {
 			$data['servers'][] = $server->toArray();
 		}
 
-		$data['paths'] = $this->paths->toArray();
+		foreach ($this->webhooks as $webhookId => $webhook) {
+			$data['webhooks'][$webhookId] = $webhook->toArray();
+		}
+
+		if ($this->paths !== null) {
+			$data['paths'] = $this->paths->toArray();
+		}
 
 		if ($this->components !== null) {
 			$data['components'] = $this->components->toArray();
@@ -93,6 +125,10 @@ class OpenApi
 
 		if ($this->externalDocs !== null) {
 			$data['externalDocs'] = $this->externalDocs->toArray();
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -121,6 +157,16 @@ class OpenApi
 	public function addSecurityRequirement(SecurityRequirement $security): void
 	{
 		$this->security[] = $security;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

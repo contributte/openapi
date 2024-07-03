@@ -11,6 +11,8 @@ class License
 
 	private ?string $url = null;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	public function __construct(string $name)
 	{
 		$this->name = $name;
@@ -24,6 +26,7 @@ class License
 		$license = new License($data['name']);
 		$license->setIdentifier($data['identifier'] ?? null);
 		$license->setUrl($data['url'] ?? null);
+		$license->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $license;
 	}
@@ -44,6 +47,10 @@ class License
 		// Optional url
 		if ($this->url !== null) {
 			$data['url'] = $this->url;
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -72,6 +79,16 @@ class License
 	public function getUrl(): ?string
 	{
 		return $this->url;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

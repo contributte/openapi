@@ -13,6 +13,8 @@ class Example
 
 	private ?string $externalValue = null;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	/**
 	 * @param mixed[] $data
 	 */
@@ -23,6 +25,7 @@ class Example
 		$example->description = $data['description'] ?? null;
 		$example->value = $data['value'] ?? null;
 		$example->externalValue = $data['externalValue'] ?? null;
+		$example->vendorExtensions = VendorExtensions::fromArray($data);
 
 		return $example;
 	}
@@ -33,6 +36,7 @@ class Example
 	public function toArray(): array
 	{
 		$data = [];
+
 		if ($this->summary !== null) {
 			$data['summary'] = $this->summary;
 		}
@@ -47,6 +51,10 @@ class Example
 
 		if ($this->externalValue !== null) {
 			$data['externalValue'] = $this->externalValue;
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -90,6 +98,16 @@ class Example
 	public function setExternalValue(?string $externalValue): void
 	{
 		$this->externalValue = $externalValue;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

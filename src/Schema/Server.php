@@ -12,6 +12,8 @@ class Server
 	/** @var ServerVariable[] */
 	private array $variables = [];
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	public function __construct(string $url)
 	{
 		$this->url = $url;
@@ -24,9 +26,12 @@ class Server
 	{
 		$server = new Server($data['url']);
 		$server->setDescription($data['description'] ?? null);
+
 		foreach ($data['variables'] ?? [] as $key => $variable) {
 			$server->addVariable($key, ServerVariable::fromArray($variable));
 		}
+
+		$server->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $server;
 	}
@@ -45,6 +50,10 @@ class Server
 
 		foreach ($this->variables as $variableKey => $variable) {
 			$data['variables'][$variableKey] = $variable->toArray();
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -76,6 +85,16 @@ class Server
 	public function getVariables(): array
 	{
 		return $this->variables;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

@@ -11,6 +11,8 @@ class Contact
 
 	private ?string $email = null;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	/**
 	 * @param mixed[] $data
 	 */
@@ -20,6 +22,7 @@ class Contact
 		$contact->setName($data['name'] ?? null);
 		$contact->setUrl($data['url'] ?? null);
 		$contact->setEmail($data['email'] ?? null);
+		$contact->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $contact;
 	}
@@ -30,6 +33,7 @@ class Contact
 	public function toArray(): array
 	{
 		$data = [];
+
 		if ($this->name !== null) {
 			$data['name'] = $this->name;
 		}
@@ -73,6 +77,16 @@ class Contact
 	public function getEmail(): ?string
 	{
 		return $this->email;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

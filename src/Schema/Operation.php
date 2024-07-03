@@ -23,20 +23,22 @@ class Operation
 
 	private RequestBody|Reference|null $requestBody = null;
 
-	private Responses $responses;
+	private ?Responses $responses;
 
 	/** @var Callback[]|Reference[] */
 	private array $callbacks = [];
 
 	private bool $deprecated = false;
 
-	/** @var SecurityRequirement[] */
-	private array $security = [];
+	/** @var SecurityRequirement[]|null */
+	private ?array $security = null;
 
 	/** @var Server[] */
 	private array $servers = [];
 
-	public function __construct(Responses $responses)
+	private ?VendorExtensions $vendorExtensions = null;
+
+	public function __construct(?Responses $responses = null)
 	{
 		$this->responses = $responses;
 	}
@@ -46,8 +48,8 @@ class Operation
 	 */
 	public static function fromArray(array $data): Operation
 	{
-		$responses = Responses::fromArray($data['responses']);
-		$operation = new Operation($responses);
+		$operation = new Operation();
+
 		if (isset($data['deprecated'])) {
 			$operation->setDeprecated($data['deprecated']);
 		}
@@ -56,6 +58,7 @@ class Operation
 		$operation->setTags($data['tags'] ?? []);
 		$operation->setSummary($data['summary'] ?? null);
 		$operation->setDescription($data['description'] ?? null);
+
 		if (isset($data['externalDocs'])) {
 			$operation->setExternalDocs(ExternalDocumentation::fromArray($data['externalDocs']));
 		}
@@ -68,6 +71,7 @@ class Operation
 			}
 
 			$parameter = Parameter::fromArray($parameterData);
+
 			if ($operation->hasParameter($parameter)) {
 				$operation->mergeParameter($parameter);
 			} else {
@@ -83,6 +87,14 @@ class Operation
 			}
 		}
 
+		if (isset($data['responses'])) {
+			$operation->setResponses(Responses::fromArray($data['responses']));
+		}
+
+		if (isset($data['security']) && $data['security'] === []) {
+			$operation->setEmptySecurityRequirement();
+		}
+
 		foreach ($data['security'] ?? [] as $securityRequirementData) {
 			$operation->addSecurityRequirement(SecurityRequirement::fromArray($securityRequirementData));
 		}
@@ -91,13 +103,15 @@ class Operation
 			$operation->addServer(Server::fromArray($server));
 		}
 
-		foreach ($data['callbacks'] ?? [] as $callback) {
+		foreach ($data['callbacks'] ?? [] as $expression => $callback) {
 			if (isset($callback['$ref'])) {
-				$operation->addCallback(Reference::fromArray($callback));
+				$operation->addCallback($expression, Reference::fromArray($callback));
 			} else {
-				$operation->addCallback(Callback::fromArray($callback));
+				$operation->addCallback($expression, Callback::fromArray($callback));
 			}
 		}
+
+		$operation->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $operation;
 	}
@@ -161,9 +175,14 @@ class Operation
 		$this->requestBody = $requestBody;
 	}
 
-	public function addCallback(Callback|Reference $callback): void
+	public function setResponses(?Responses $responses): void
 	{
-		$this->callbacks[] = $callback;
+		$this->responses = $responses;
+	}
+
+	public function addCallback(string $expression, Callback|Reference $callback): void
+	{
+		$this->callbacks[$expression] = $callback;
 	}
 
 	public function setDeprecated(bool $deprecated): void
@@ -171,8 +190,17 @@ class Operation
 		$this->deprecated = $deprecated;
 	}
 
+	public function setEmptySecurityRequirement(): void
+	{
+		$this->security = [];
+	}
+
 	public function addSecurityRequirement(SecurityRequirement $securityRequirement): void
 	{
+		if ($this->security === null) {
+			$this->security = [];
+		}
+
 		$this->security[] = $securityRequirement;
 	}
 
@@ -187,6 +215,7 @@ class Operation
 	public function toArray(): array
 	{
 		$data = [];
+
 		if ($this->deprecated) {
 			$data['deprecated'] = $this->deprecated;
 		}
@@ -219,17 +248,28 @@ class Operation
 			$data['requestBody'] = $this->requestBody->toArray();
 		}
 
-		foreach ($this->security as $securityRequirement) {
-			$data['security'][] = $securityRequirement->toArray();
+		if ($this->security !== null) {
+			$data['security'] = [];
+
+			foreach ($this->security as $securityRequirement) {
+				$data['security'][] = $securityRequirement->toArray();
+			}
 		}
 
-		$data['responses'] = $this->responses->toArray();
+		if ($this->responses !== null) {
+			$data['responses'] = $this->responses->toArray();
+		}
+
 		foreach ($this->servers as $server) {
 			$data['servers'][] = $server->toArray();
 		}
 
-		foreach ($this->callbacks as $callback) {
-			$data['callbacks'][] = $callback->toArray();
+		foreach ($this->callbacks as $expression => $callback) {
+			$data['callbacks'][$expression] = $callback->toArray();
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -276,7 +316,7 @@ class Operation
 		return $this->requestBody;
 	}
 
-	public function getResponses(): Responses
+	public function getResponses(): ?Responses
 	{
 		return $this->responses;
 	}
@@ -295,9 +335,9 @@ class Operation
 	}
 
 	/**
-	 * @return SecurityRequirement[]
+	 * @return SecurityRequirement[]|null
 	 */
-	public function getSecurity(): array
+	public function getSecurity(): ?array
 	{
 		return $this->security;
 	}
@@ -308,6 +348,16 @@ class Operation
 	public function getServers(): array
 	{
 		return $this->servers;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 	private function getParameterKey(Parameter $parameter): string

@@ -39,6 +39,8 @@ class PathItem
 	/** @var Parameter[]|Reference[] */
 	private array $params = [];
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	/**
 	 * @param mixed[] $pathItemData
 	 */
@@ -68,6 +70,8 @@ class PathItem
 				$pathItem->addParameter(Parameter::fromArray($parameter));
 			}
 		}
+
+		$pathItem->setVendorExtensions(VendorExtensions::fromArray($pathItemData));
 
 		return $pathItem;
 	}
@@ -127,12 +131,23 @@ class PathItem
 		return $this->servers;
 	}
 
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
+	}
+
 	/**
 	 * @return mixed[]
 	 */
 	public function toArray(): array
 	{
 		$data = [];
+
 		foreach ($this->operations as $key => $operation) {
 			$data[$key] = $operation->toArray();
 		}
@@ -151,6 +166,10 @@ class PathItem
 
 		if ($this->params !== []) {
 			$data['parameters'] = array_map(static fn (Parameter|Reference $parameter): array => $parameter->toArray(), $this->params);
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;

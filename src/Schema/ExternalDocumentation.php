@@ -9,6 +9,8 @@ class ExternalDocumentation
 
 	private string $url;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	public function __construct(string $url)
 	{
 		$this->url = $url;
@@ -21,6 +23,7 @@ class ExternalDocumentation
 	{
 		$externalDocumentation = new ExternalDocumentation($data['url']);
 		$externalDocumentation->setDescription($data['description'] ?? null);
+		$externalDocumentation->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $externalDocumentation;
 	}
@@ -36,6 +39,10 @@ class ExternalDocumentation
 		// Optional
 		if ($this->description !== null) {
 			$data['description'] = $this->description;
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -54,6 +61,16 @@ class ExternalDocumentation
 	public function getUrl(): string
 	{
 		return $this->url;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

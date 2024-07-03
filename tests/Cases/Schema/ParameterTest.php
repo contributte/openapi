@@ -49,9 +49,9 @@ class ParameterTest extends TestCase
 			'required' => true,
 			'deprecated' => true,
 			'allowEmptyValue' => true,
+			'style' => 'whatever',
 			'schema' => [],
 			'example' => 'whatever',
-			'style' => 'whatever',
 		];
 
 		Assert::same($expectedData, $realData);

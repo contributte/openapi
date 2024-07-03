@@ -12,12 +12,18 @@ class MediaType
 	/** @var string[]|Example[]|Reference[] */
 	private array $examples = [];
 
+	/** @var array<string, Encoding|Reference> */
+	private array $encoding = [];
+
+	private ?VendorExtensions $vendorExtensions = null;
+
 	/**
 	 * @param mixed[] $data
 	 */
 	public static function fromArray(array $data): MediaType
 	{
 		$mediaType = new MediaType();
+
 		if (isset($data['schema'])) {
 			if (isset($data['schema']['$ref'])) {
 				$mediaType->setSchema(Reference::fromArray($data['schema']));
@@ -27,6 +33,7 @@ class MediaType
 		}
 
 		$mediaType->setExample($data['example'] ?? null);
+
 		if (isset($data['examples'])) {
 			foreach ($data['examples'] as $name => $example) {
 				if (isset($example['$ref'])) {
@@ -36,6 +43,16 @@ class MediaType
 				}
 			}
 		}
+
+		foreach ($data['encoding'] ?? [] as $name => $encoding) {
+			if (isset($encoding['$ref'])) {
+				$mediaType->addEncoding($name, Reference::fromArray($encoding));
+			} else {
+				$mediaType->addEncoding($name, Encoding::fromArray($encoding));
+			}
+		}
+
+		$mediaType->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $mediaType;
 	}
@@ -65,12 +82,28 @@ class MediaType
 		$this->examples[$name] = $example;
 	}
 
+	public function addEncoding(string $name, Encoding|Reference $encoding): void
+	{
+		$this->encoding[$name] = $encoding;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
+	}
+
 	/**
 	 * @return mixed[]
 	 */
 	public function toArray(): array
 	{
 		$data = [];
+
 		if ($this->schema !== null) {
 			$data['schema'] = $this->schema->toArray();
 		}
@@ -81,6 +114,14 @@ class MediaType
 
 		if ($this->examples !== []) {
 			$data['examples'] = array_map(static fn ($example) => is_string($example) ? $example : $example->toArray(), $this->examples);
+		}
+
+		if ($this->encoding !== []) {
+			$data['encoding'] = array_map(static fn (Encoding|Reference $encoding) => $encoding->toArray(), $this->encoding);
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
