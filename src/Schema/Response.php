@@ -87,7 +87,7 @@ class Response
 		}
 
 		if ($this->content !== null) {
-			$data['content'] = array_map(static fn(MediaType $mediaType): array => $mediaType->toArray(), $this->content);
+			$data['content'] = array_map(static fn (MediaType $mediaType): array => $mediaType->toArray(), $this->content);
 		}
 
 		foreach ($this->links as $key => $link) {
