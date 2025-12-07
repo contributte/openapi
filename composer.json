@@ -19,15 +19,15 @@
     }
   ],
   "require": {
-    "php": ">=8.1",
+    "php": ">=8.2",
     "nette/utils": "^4.0.0"
   },
   "require-dev": {
     "contributte/qa": "^0.4",
-    "contributte/tester": "^0.3",
-    "contributte/phpstan": "^0.1",
-    "tracy/tracy": "^2.10.5",
-    "symfony/yaml": "^6.4.0 || ^7.0.0"
+    "contributte/tester": "^0.4",
+    "contributte/phpstan": "^0.2",
+    "tracy/tracy": "^2.11.0",
+    "symfony/yaml": "^6.4.0 || ^7.0.0 || ^8.0.0"
   },
   "autoload": {
     "psr-4": {
