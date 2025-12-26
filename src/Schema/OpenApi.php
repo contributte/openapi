@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class OpenApi
 {
 
@@ -44,41 +46,54 @@ class OpenApi
 	public static function fromArray(array $data): OpenApi
 	{
 		$openApi = new OpenApi(
-			$data['openapi'],
-			Info::fromArray($data['info']),
+			Helpers::getString($data, 'openapi'),
+			Info::fromArray(Helpers::getArray($data, 'info')),
 		);
 
-		if (isset($data['jsonSchemaDialect'])) {
-			$openApi->jsonSchemaDialect = $data['jsonSchemaDialect'];
+		$openApi->jsonSchemaDialect = Helpers::getStringOrNull($data, 'jsonSchemaDialect');
+
+		$servers = Helpers::getArrayOrNull($data, 'servers') ?? [];
+		foreach ($servers as $serverData) {
+			if (is_array($serverData)) {
+				$openApi->addServer(Server::fromArray($serverData));
+			}
 		}
 
-		foreach ($data['servers'] ?? [] as $serverData) {
-			$openApi->addServer(Server::fromArray($serverData));
+		$paths = Helpers::getArrayOrNull($data, 'paths');
+		if ($paths !== null) {
+			$openApi->paths = Paths::fromArray($paths);
 		}
 
-		if (isset($data['paths'])) {
-			$openApi->paths = Paths::fromArray($data['paths']);
+		$webhooks = Helpers::getArrayOrNull($data, 'webhooks') ?? [];
+		foreach ($webhooks as $webhookId => $webhookData) {
+			if (is_array($webhookData)) {
+				$webhook = isset($webhookData['$ref']) ? Reference::fromArray($webhookData) : PathItem::fromArray($webhookData);
+				$openApi->webhooks[(string) $webhookId] = $webhook;
+			}
 		}
 
-		foreach ($data['webhooks'] ?? [] as $webhookId => $webhookData) {
-			$webhook = isset($webhookData['$ref']) ? Reference::fromArray($webhookData) : PathItem::fromArray($webhookData);
-			$openApi->webhooks[(string) $webhookId] = $webhook;
+		$components = Helpers::getArrayOrNull($data, 'components');
+		if ($components !== null) {
+			$openApi->setComponents(Components::fromArray($components));
 		}
 
-		if (isset($data['components'])) {
-			$openApi->setComponents(Components::fromArray($data['components']));
+		$tags = Helpers::getArrayOrNull($data, 'tags') ?? [];
+		foreach ($tags as $tagData) {
+			if (is_array($tagData)) {
+				$openApi->addTag(Tag::fromArray($tagData));
+			}
 		}
 
-		foreach ($data['tags'] ?? [] as $tagData) {
-			$openApi->addTag(Tag::fromArray($tagData));
+		$externalDocs = Helpers::getArrayOrNull($data, 'externalDocs');
+		if ($externalDocs !== null) {
+			$openApi->externalDocs = ExternalDocumentation::fromArray($externalDocs);
 		}
 
-		if (isset($data['externalDocs'])) {
-			$openApi->externalDocs = ExternalDocumentation::fromArray($data['externalDocs']);
-		}
-
-		foreach ($data['security'] ?? [] as $security) {
-			$openApi->addSecurityRequirement(SecurityRequirement::fromArray($security));
+		$security = Helpers::getArrayOrNull($data, 'security') ?? [];
+		foreach ($security as $securityItem) {
+			if (is_array($securityItem)) {
+				$openApi->addSecurityRequirement(SecurityRequirement::fromArray($securityItem));
+			}
 		}
 
 		$openApi->setVendorExtensions(VendorExtensions::fromArray($data));

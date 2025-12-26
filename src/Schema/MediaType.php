@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class MediaType
 {
 
@@ -24,31 +26,38 @@ class MediaType
 	{
 		$mediaType = new MediaType();
 
-		if (isset($data['schema'])) {
-			if (isset($data['schema']['$ref'])) {
-				$mediaType->setSchema(Reference::fromArray($data['schema']));
+		$schema = Helpers::getArrayOrNull($data, 'schema');
+		if ($schema !== null) {
+			if (isset($schema['$ref'])) {
+				$mediaType->setSchema(Reference::fromArray($schema));
 			} else {
-				$mediaType->setSchema(Schema::fromArray($data['schema']));
+				$mediaType->setSchema(Schema::fromArray($schema));
 			}
 		}
 
 		$mediaType->setExample($data['example'] ?? null);
 
-		if (isset($data['examples'])) {
-			foreach ($data['examples'] as $name => $example) {
-				if (isset($example['$ref'])) {
-					$mediaType->addExample($name, Reference::fromArray($example));
-				} else {
-					$mediaType->addExample($name, Example::fromArray($example));
+		$examples = Helpers::getArrayOrNull($data, 'examples');
+		if ($examples !== null) {
+			foreach ($examples as $name => $example) {
+				if (is_array($example)) {
+					if (isset($example['$ref'])) {
+						$mediaType->addExample((string) $name, Reference::fromArray($example));
+					} else {
+						$mediaType->addExample((string) $name, Example::fromArray($example));
+					}
 				}
 			}
 		}
 
-		foreach ($data['encoding'] ?? [] as $name => $encoding) {
-			if (isset($encoding['$ref'])) {
-				$mediaType->addEncoding($name, Reference::fromArray($encoding));
-			} else {
-				$mediaType->addEncoding($name, Encoding::fromArray($encoding));
+		$encoding = Helpers::getArrayOrNull($data, 'encoding') ?? [];
+		foreach ($encoding as $name => $encodingItem) {
+			if (is_array($encodingItem)) {
+				if (isset($encodingItem['$ref'])) {
+					$mediaType->addEncoding((string) $name, Reference::fromArray($encodingItem));
+				} else {
+					$mediaType->addEncoding((string) $name, Encoding::fromArray($encodingItem));
+				}
 			}
 		}
 

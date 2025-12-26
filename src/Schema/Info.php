@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class Info
 {
 
@@ -32,12 +34,14 @@ class Info
 	 */
 	public static function fromArray(array $data): Info
 	{
-		$info = new Info($data['title'], $data['version']);
-		$info->setSummary($data['summary'] ?? null);
-		$info->setDescription($data['description'] ?? null);
-		$info->setTermsOfService($data['termsOfService'] ?? null);
-		$info->setLicense(isset($data['license']) ? License::fromArray($data['license']) : null);
-		$info->setContact(isset($data['contact']) ? Contact::fromArray($data['contact']) : null);
+		$info = new Info(Helpers::getString($data, 'title'), Helpers::getString($data, 'version'));
+		$info->setSummary(Helpers::getStringOrNull($data, 'summary'));
+		$info->setDescription(Helpers::getStringOrNull($data, 'description'));
+		$info->setTermsOfService(Helpers::getStringOrNull($data, 'termsOfService'));
+		$license = Helpers::getArrayOrNull($data, 'license');
+		$info->setLicense($license !== null ? License::fromArray($license) : null);
+		$contact = Helpers::getArrayOrNull($data, 'contact');
+		$info->setContact($contact !== null ? Contact::fromArray($contact) : null);
 		$info->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $info;

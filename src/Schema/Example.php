@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class Example
 {
 
@@ -21,10 +23,10 @@ class Example
 	public static function fromArray(array $data): self
 	{
 		$example = new Example();
-		$example->summary = $data['summary'] ?? null;
-		$example->description = $data['description'] ?? null;
+		$example->summary = Helpers::getStringOrNull($data, 'summary');
+		$example->description = Helpers::getStringOrNull($data, 'description');
 		$example->value = $data['value'] ?? null;
-		$example->externalValue = $data['externalValue'] ?? null;
+		$example->externalValue = Helpers::getStringOrNull($data, 'externalValue');
 		$example->vendorExtensions = VendorExtensions::fromArray($data);
 
 		return $example;

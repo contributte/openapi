@@ -2,6 +2,7 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
 use InvalidArgumentException;
 
 class Parameter
@@ -65,25 +66,28 @@ class Parameter
 	 */
 	public static function fromArray(array $data): Parameter
 	{
-		$parameter = new Parameter($data['name'], $data['in']);
-		$parameter->setDescription($data['description'] ?? null);
-		$parameter->setRequired($data['required'] ?? null);
-		$parameter->setDeprecated($data['deprecated'] ?? null);
-		$parameter->setAllowEmptyValue($data['allowEmptyValue'] ?? null);
-		$parameter->setStyle($data['style'] ?? null);
-		$parameter->setExplode($data['explode'] ?? null);
-		$parameter->setAllowReserved($data['allowReserved'] ?? null);
+		$parameter = new Parameter(Helpers::getString($data, 'name'), Helpers::getString($data, 'in'));
+		$parameter->setDescription(Helpers::getStringOrNull($data, 'description'));
+		$parameter->setRequired(Helpers::getBoolOrNull($data, 'required'));
+		$parameter->setDeprecated(Helpers::getBoolOrNull($data, 'deprecated'));
+		$parameter->setAllowEmptyValue(Helpers::getBoolOrNull($data, 'allowEmptyValue'));
+		$parameter->setStyle(Helpers::getStringOrNull($data, 'style'));
+		$parameter->setExplode(Helpers::getBoolOrNull($data, 'explode'));
+		$parameter->setAllowReserved(Helpers::getBoolOrNull($data, 'allowReserved'));
 
-		if (isset($data['schema'])) {
-			if (isset($data['schema']['$ref'])) {
-				$parameter->setSchema(Reference::fromArray($data['schema']));
+		$schema = Helpers::getArrayOrNull($data, 'schema');
+		if ($schema !== null) {
+			if (isset($schema['$ref'])) {
+				$parameter->setSchema(Reference::fromArray($schema));
 			} else {
-				$parameter->setSchema(Schema::fromArray($data['schema']));
+				$parameter->setSchema(Schema::fromArray($schema));
 			}
 		}
 
 		$parameter->setExample($data['example'] ?? null);
-		$parameter->setExamples($data['examples'] ?? []);
+		/** @var mixed[] $examples */
+		$examples = Helpers::getArrayOrNull($data, 'examples') ?? [];
+		$parameter->setExamples($examples);
 		$parameter->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $parameter;

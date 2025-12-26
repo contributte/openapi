@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class ExternalDocumentation
 {
 
@@ -21,8 +23,8 @@ class ExternalDocumentation
 	 */
 	public static function fromArray(array $data): ExternalDocumentation
 	{
-		$externalDocumentation = new ExternalDocumentation($data['url']);
-		$externalDocumentation->setDescription($data['description'] ?? null);
+		$externalDocumentation = new ExternalDocumentation(Helpers::getString($data, 'url'));
+		$externalDocumentation->setDescription(Helpers::getStringOrNull($data, 'description'));
 		$externalDocumentation->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $externalDocumentation;

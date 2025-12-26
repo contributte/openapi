@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class OAuthFlow
 {
 
@@ -30,11 +32,14 @@ class OAuthFlow
 	 */
 	public static function fromArray(array $data): self
 	{
+		/** @var array<string, string> $scopes */
+		$scopes = Helpers::getArray($data, 'scopes');
+
 		return new self(
-			$data['authorizationUrl'],
-			$data['tokenUrl'],
-			$data['refreshUrl'],
-			$data['scopes'],
+			Helpers::getString($data, 'authorizationUrl'),
+			Helpers::getString($data, 'tokenUrl'),
+			Helpers::getString($data, 'refreshUrl'),
+			$scopes,
 		);
 	}
 

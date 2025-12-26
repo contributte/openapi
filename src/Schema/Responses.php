@@ -18,6 +18,10 @@ class Responses
 		$responses = new Responses();
 
 		foreach ($data as $key => $responseData) {
+			if (!is_array($responseData)) {
+				continue;
+			}
+
 			if (isset($responseData['$ref'])) {
 				$responses->setResponse((string) $key, Reference::fromArray($responseData));
 			} else {

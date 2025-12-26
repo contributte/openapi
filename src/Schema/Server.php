@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class Server
 {
 
@@ -24,11 +26,14 @@ class Server
 	 */
 	public static function fromArray(array $data): Server
 	{
-		$server = new Server($data['url']);
-		$server->setDescription($data['description'] ?? null);
+		$server = new Server(Helpers::getString($data, 'url'));
+		$server->setDescription(Helpers::getStringOrNull($data, 'description'));
 
-		foreach ($data['variables'] ?? [] as $key => $variable) {
-			$server->addVariable($key, ServerVariable::fromArray($variable));
+		$variables = Helpers::getArrayOrNull($data, 'variables') ?? [];
+		foreach ($variables as $key => $variable) {
+			if (is_array($variable)) {
+				$server->addVariable((string) $key, ServerVariable::fromArray($variable));
+			}
 		}
 
 		$server->setVendorExtensions(VendorExtensions::fromArray($data));

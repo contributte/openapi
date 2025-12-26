@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class ServerVariable
 {
 
@@ -24,9 +26,11 @@ class ServerVariable
 	 */
 	public static function fromArray(array $data): ServerVariable
 	{
-		$variable = new ServerVariable($data['default']);
-		$variable->setDescription($data['description'] ?? null);
-		$variable->setEnum($data['enum'] ?? []);
+		$variable = new ServerVariable(Helpers::getString($data, 'default'));
+		$variable->setDescription(Helpers::getStringOrNull($data, 'description'));
+		/** @var string[] $enum */
+		$enum = Helpers::getArrayOrNull($data, 'enum') ?? [];
+		$variable->setEnum($enum);
 		$variable->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $variable;

@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class Response
 {
 
@@ -28,29 +30,37 @@ class Response
 	 */
 	public static function fromArray(array $data): Response
 	{
-		$response = new Response($data['description']);
+		$response = new Response(Helpers::getString($data, 'description'));
 
-		foreach ($data['headers'] ?? [] as $key => $headerData) {
-			if (isset($headerData['$ref'])) {
-				$response->setHeader($key, Reference::fromArray($headerData));
-			} else {
-				$response->setHeader($key, Header::fromArray($headerData));
+		$headers = Helpers::getArrayOrNull($data, 'headers') ?? [];
+		foreach ($headers as $key => $headerData) {
+			if (is_array($headerData)) {
+				if (isset($headerData['$ref'])) {
+					$response->setHeader((string) $key, Reference::fromArray($headerData));
+				} else {
+					$response->setHeader((string) $key, Header::fromArray($headerData));
+				}
 			}
 		}
 
-		if (isset($data['content'])) {
+		$content = Helpers::getArrayOrNull($data, 'content');
+		if ($content !== null) {
 			$response->content = [];
+			foreach ($content as $key => $contentData) {
+				if (is_array($contentData)) {
+					$response->setContent((string) $key, MediaType::fromArray($contentData));
+				}
+			}
 		}
 
-		foreach ($data['content'] ?? [] as $key => $contentData) {
-			$response->setContent($key, MediaType::fromArray($contentData));
-		}
-
-		foreach ($data['links'] ?? [] as $key => $linkData) {
-			if (isset($linkData['$ref'])) {
-				$response->setLink($key, Reference::fromArray($linkData));
-			} else {
-				$response->setLink($key, Link::fromArray($linkData));
+		$links = Helpers::getArrayOrNull($data, 'links') ?? [];
+		foreach ($links as $key => $linkData) {
+			if (is_array($linkData)) {
+				if (isset($linkData['$ref'])) {
+					$response->setLink((string) $key, Reference::fromArray($linkData));
+				} else {
+					$response->setLink((string) $key, Link::fromArray($linkData));
+				}
 			}
 		}
 

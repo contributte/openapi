@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class Link
 {
 
@@ -26,12 +28,15 @@ class Link
 	public static function fromArray(array $data): Link
 	{
 		$link = new Link();
-		$link->setOperationRef($data['operationRef'] ?? null);
-		$link->setOperationId($data['operationId'] ?? null);
-		$link->setParameters($data['parameters'] ?? []);
+		$link->setOperationRef(Helpers::getStringOrNull($data, 'operationRef'));
+		$link->setOperationId(Helpers::getStringOrNull($data, 'operationId'));
+		/** @var mixed[] $parameters */
+		$parameters = Helpers::getArrayOrNull($data, 'parameters') ?? [];
+		$link->setParameters($parameters);
 		$link->setRequestBody($data['requestBody'] ?? null);
-		$link->setDescription($data['description'] ?? null);
-		$link->setServer(isset($data['server']) ? Server::fromArray($data['server']) : null);
+		$link->setDescription(Helpers::getStringOrNull($data, 'description'));
+		$server = Helpers::getArrayOrNull($data, 'server');
+		$link->setServer($server !== null ? Server::fromArray($server) : null);
 		$link->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $link;

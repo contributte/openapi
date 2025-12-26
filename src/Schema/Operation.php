@@ -50,20 +50,29 @@ class Operation
 	{
 		$operation = new Operation();
 
-		if (isset($data['deprecated'])) {
-			$operation->setDeprecated($data['deprecated']);
+		$deprecated = Helpers::getBoolOrNull($data, 'deprecated');
+		if ($deprecated !== null) {
+			$operation->setDeprecated($deprecated);
 		}
 
-		$operation->setOperationId($data['operationId'] ?? null);
-		$operation->setTags($data['tags'] ?? []);
-		$operation->setSummary($data['summary'] ?? null);
-		$operation->setDescription($data['description'] ?? null);
+		$operation->setOperationId(Helpers::getStringOrNull($data, 'operationId'));
+		/** @var string[] $tags */
+		$tags = Helpers::getArrayOrNull($data, 'tags') ?? [];
+		$operation->setTags($tags);
+		$operation->setSummary(Helpers::getStringOrNull($data, 'summary'));
+		$operation->setDescription(Helpers::getStringOrNull($data, 'description'));
 
-		if (isset($data['externalDocs'])) {
-			$operation->setExternalDocs(ExternalDocumentation::fromArray($data['externalDocs']));
+		$externalDocs = Helpers::getArrayOrNull($data, 'externalDocs');
+		if ($externalDocs !== null) {
+			$operation->setExternalDocs(ExternalDocumentation::fromArray($externalDocs));
 		}
 
-		foreach ($data['parameters'] ?? [] as $parameterData) {
+		$parameters = Helpers::getArrayOrNull($data, 'parameters') ?? [];
+		foreach ($parameters as $parameterData) {
+			if (!is_array($parameterData)) {
+				continue;
+			}
+
 			if (isset($parameterData['$ref'])) {
 				$operation->addParameter(Reference::fromArray($parameterData));
 
@@ -79,35 +88,46 @@ class Operation
 			}
 		}
 
-		if (isset($data['requestBody'])) {
-			if (isset($data['requestBody']['$ref'])) {
-				$operation->setRequestBody(Reference::fromArray($data['requestBody']));
+		$requestBody = Helpers::getArrayOrNull($data, 'requestBody');
+		if ($requestBody !== null) {
+			if (isset($requestBody['$ref'])) {
+				$operation->setRequestBody(Reference::fromArray($requestBody));
 			} else {
-				$operation->setRequestBody(RequestBody::fromArray($data['requestBody']));
+				$operation->setRequestBody(RequestBody::fromArray($requestBody));
 			}
 		}
 
-		if (isset($data['responses'])) {
-			$operation->setResponses(Responses::fromArray($data['responses']));
+		$responses = Helpers::getArrayOrNull($data, 'responses');
+		if ($responses !== null) {
+			$operation->setResponses(Responses::fromArray($responses));
 		}
 
-		if (isset($data['security']) && $data['security'] === []) {
+		$security = Helpers::getArrayOrNull($data, 'security');
+		if ($security !== null && $security === []) {
 			$operation->setEmptySecurityRequirement();
 		}
 
-		foreach ($data['security'] ?? [] as $securityRequirementData) {
-			$operation->addSecurityRequirement(SecurityRequirement::fromArray($securityRequirementData));
+		foreach ($security ?? [] as $securityRequirementData) {
+			if (is_array($securityRequirementData)) {
+				$operation->addSecurityRequirement(SecurityRequirement::fromArray($securityRequirementData));
+			}
 		}
 
-		foreach ($data['servers'] ?? [] as $server) {
-			$operation->addServer(Server::fromArray($server));
+		$servers = Helpers::getArrayOrNull($data, 'servers') ?? [];
+		foreach ($servers as $server) {
+			if (is_array($server)) {
+				$operation->addServer(Server::fromArray($server));
+			}
 		}
 
-		foreach ($data['callbacks'] ?? [] as $expression => $callback) {
-			if (isset($callback['$ref'])) {
-				$operation->addCallback($expression, Reference::fromArray($callback));
-			} else {
-				$operation->addCallback($expression, Callback::fromArray($callback));
+		$callbacks = Helpers::getArrayOrNull($data, 'callbacks') ?? [];
+		foreach ($callbacks as $expression => $callback) {
+			if (is_array($callback)) {
+				if (isset($callback['$ref'])) {
+					$operation->addCallback((string) $expression, Reference::fromArray($callback));
+				} else {
+					$operation->addCallback((string) $expression, Callback::fromArray($callback));
+				}
 			}
 		}
 
@@ -165,7 +185,9 @@ class Operation
 		$originalParameter = $this->parameters[$this->getParameterKey($parameter)];
 
 		$merged = Helpers::merge($parameter->toArray(), $originalParameter->toArray());
-		$parameter = Parameter::fromArray($merged);
+		/** @var array<mixed> $mergedArray */
+		$mergedArray = is_array($merged) ? $merged : [];
+		$parameter = Parameter::fromArray($mergedArray);
 
 		$this->parameters[$this->getParameterKey($parameter)] = $parameter;
 	}

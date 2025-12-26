@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class Reference
 {
 
@@ -21,9 +23,9 @@ class Reference
 	 */
 	public static function fromArray(array $data): Reference
 	{
-		$reference = new Reference($data['$ref']);
-		$reference->setSummary($data['summary'] ?? null);
-		$reference->setDescription($data['description'] ?? null);
+		$reference = new Reference(Helpers::getString($data, '$ref'));
+		$reference->setSummary(Helpers::getStringOrNull($data, 'summary'));
+		$reference->setDescription(Helpers::getStringOrNull($data, 'description'));
 
 		return $reference;
 	}

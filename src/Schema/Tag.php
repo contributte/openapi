@@ -2,6 +2,8 @@
 
 namespace Contributte\OpenApi\Schema;
 
+use Contributte\OpenApi\Utils\Helpers;
+
 class Tag
 {
 
@@ -23,9 +25,10 @@ class Tag
 	 */
 	public static function fromArray(array $data): Tag
 	{
-		$tag = new Tag($data['name']);
-		$tag->setDescription($data['description'] ?? null);
-		$tag->setExternalDocs(isset($data['externalDocs']) ? ExternalDocumentation::fromArray($data['externalDocs']) : null);
+		$tag = new Tag(Helpers::getString($data, 'name'));
+		$tag->setDescription(Helpers::getStringOrNull($data, 'description'));
+		$externalDocs = Helpers::getArrayOrNull($data, 'externalDocs');
+		$tag->setExternalDocs($externalDocs !== null ? ExternalDocumentation::fromArray($externalDocs) : null);
 		$tag->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $tag;

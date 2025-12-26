@@ -18,10 +18,14 @@ class Paths
 		$paths = new Paths();
 
 		foreach ($data as $path => $pathItemData) {
+			if (!is_array($pathItemData)) {
+				continue;
+			}
+
 			if (isset($pathItemData['$ref'])) {
-				$paths->setPathItem($path, Reference::fromArray($pathItemData));
+				$paths->setPathItem((string) $path, Reference::fromArray($pathItemData));
 			} else {
-				$paths->setPathItem($path, PathItem::fromArray($pathItemData));
+				$paths->setPathItem((string) $path, PathItem::fromArray($pathItemData));
 			}
 		}
 
