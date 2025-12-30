@@ -2,8 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
-
 class Reference
 {
 
@@ -19,13 +17,19 @@ class Reference
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array<string, mixed> $data
 	 */
 	public static function fromArray(array $data): Reference
 	{
-		$reference = new Reference(Helpers::getString($data, '$ref'));
-		$reference->setSummary(Helpers::getStringOrNull($data, 'summary'));
-		$reference->setDescription(Helpers::getStringOrNull($data, 'description'));
+		/** @var string $ref */
+		$ref = $data['$ref'];
+		$reference = new Reference($ref);
+		/** @var string|null $summary */
+		$summary = $data['summary'] ?? null;
+		$reference->setSummary($summary);
+		/** @var string|null $description */
+		$description = $data['description'] ?? null;
+		$reference->setDescription($description);
 
 		return $reference;
 	}

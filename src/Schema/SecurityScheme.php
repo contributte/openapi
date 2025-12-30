@@ -2,7 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
 use InvalidArgumentException;
 
 class SecurityScheme
@@ -66,17 +65,19 @@ class SecurityScheme
 	 */
 	public static function fromArray(array $data): SecurityScheme
 	{
-		$type = Helpers::getString($data, 'type');
+		/** @var string $type */
+		$type = $data['type'];
 		$securityScheme = new SecurityScheme($type);
-		$securityScheme->setName(Helpers::getStringOrNull($data, 'name'));
-		$securityScheme->setDescription(Helpers::getStringOrNull($data, 'description'));
-		$securityScheme->setIn(Helpers::getStringOrNull($data, 'in'));
-		$securityScheme->setScheme(Helpers::getStringOrNull($data, 'scheme'));
-		$securityScheme->setBearerFormat(Helpers::getStringOrNull($data, 'bearerFormat'));
-		/** @var array<string, array<mixed>> $flowsData */
-		$flowsData = Helpers::getArrayOrNull($data, 'flows') ?? [];
+		/** @var string|null $name */
+		$name = $data['name'] ?? null;
+		$securityScheme->setName($name);
+		$securityScheme->setDescription($data['description'] ?? null);
+		$securityScheme->setIn($data['in'] ?? null);
+		$securityScheme->setScheme($data['scheme'] ?? null);
+		$securityScheme->setBearerFormat($data['bearerFormat'] ?? null);
+		$flowsData = $data['flows'] ?? [];
 		$securityScheme->setFlows(array_map(static fn (array $flow): OAuthFlow => OAuthFlow::fromArray($flow), $flowsData));
-		$securityScheme->setOpenIdConnectUrl(Helpers::getStringOrNull($data, 'openIdConnectUrl'));
+		$securityScheme->setOpenIdConnectUrl($data['openIdConnectUrl'] ?? null);
 
 		return $securityScheme;
 	}

@@ -50,29 +50,35 @@ class Operation
 	{
 		$operation = new Operation();
 
-		$deprecated = Helpers::getBoolOrNull($data, 'deprecated');
+		/** @var bool|null $deprecated */
+		$deprecated = $data['deprecated'] ?? null;
 		if ($deprecated !== null) {
 			$operation->setDeprecated($deprecated);
 		}
 
-		$operation->setOperationId(Helpers::getStringOrNull($data, 'operationId'));
+		/** @var string|null $operationId */
+		$operationId = $data['operationId'] ?? null;
+		$operation->setOperationId($operationId);
 		/** @var string[] $tags */
-		$tags = Helpers::getArrayOrNull($data, 'tags') ?? [];
+		$tags = $data['tags'] ?? [];
 		$operation->setTags($tags);
-		$operation->setSummary(Helpers::getStringOrNull($data, 'summary'));
-		$operation->setDescription(Helpers::getStringOrNull($data, 'description'));
+		/** @var string|null $summary */
+		$summary = $data['summary'] ?? null;
+		$operation->setSummary($summary);
+		/** @var string|null $description */
+		$description = $data['description'] ?? null;
+		$operation->setDescription($description);
 
-		$externalDocs = Helpers::getArrayOrNull($data, 'externalDocs');
+		/** @var mixed[]|null $externalDocs */
+		$externalDocs = $data['externalDocs'] ?? null;
 		if ($externalDocs !== null) {
 			$operation->setExternalDocs(ExternalDocumentation::fromArray($externalDocs));
 		}
 
-		$parameters = Helpers::getArrayOrNull($data, 'parameters') ?? [];
+		/** @var mixed[] $parameters */
+		$parameters = $data['parameters'] ?? [];
 		foreach ($parameters as $parameterData) {
-			if (!is_array($parameterData)) {
-				continue;
-			}
-
+			/** @var mixed[] $parameterData */
 			if (isset($parameterData['$ref'])) {
 				$operation->addParameter(Reference::fromArray($parameterData));
 
@@ -88,7 +94,8 @@ class Operation
 			}
 		}
 
-		$requestBody = Helpers::getArrayOrNull($data, 'requestBody');
+		/** @var mixed[]|null $requestBody */
+		$requestBody = $data['requestBody'] ?? null;
 		if ($requestBody !== null) {
 			if (isset($requestBody['$ref'])) {
 				$operation->setRequestBody(Reference::fromArray($requestBody));
@@ -97,37 +104,37 @@ class Operation
 			}
 		}
 
-		$responses = Helpers::getArrayOrNull($data, 'responses');
+		/** @var mixed[]|null $responses */
+		$responses = $data['responses'] ?? null;
 		if ($responses !== null) {
 			$operation->setResponses(Responses::fromArray($responses));
 		}
 
-		$security = Helpers::getArrayOrNull($data, 'security');
+		/** @var mixed[]|null $security */
+		$security = $data['security'] ?? null;
 		if ($security !== null && $security === []) {
 			$operation->setEmptySecurityRequirement();
 		}
 
 		foreach ($security ?? [] as $securityRequirementData) {
-			if (is_array($securityRequirementData)) {
-				$operation->addSecurityRequirement(SecurityRequirement::fromArray($securityRequirementData));
-			}
+			/** @var mixed[] $securityRequirementData */
+			$operation->addSecurityRequirement(SecurityRequirement::fromArray($securityRequirementData));
 		}
 
-		$servers = Helpers::getArrayOrNull($data, 'servers') ?? [];
+		/** @var mixed[] $servers */
+		$servers = $data['servers'] ?? [];
 		foreach ($servers as $server) {
-			if (is_array($server)) {
-				$operation->addServer(Server::fromArray($server));
-			}
+			/** @var mixed[] $server */
+			$operation->addServer(Server::fromArray($server));
 		}
 
-		$callbacks = Helpers::getArrayOrNull($data, 'callbacks') ?? [];
+		/** @var array<string, mixed[]> $callbacks */
+		$callbacks = $data['callbacks'] ?? [];
 		foreach ($callbacks as $expression => $callback) {
-			if (is_array($callback)) {
-				if (isset($callback['$ref'])) {
-					$operation->addCallback((string) $expression, Reference::fromArray($callback));
-				} else {
-					$operation->addCallback((string) $expression, Callback::fromArray($callback));
-				}
+			if (isset($callback['$ref'])) {
+				$operation->addCallback($expression, Reference::fromArray($callback));
+			} else {
+				$operation->addCallback($expression, Callback::fromArray($callback));
 			}
 		}
 

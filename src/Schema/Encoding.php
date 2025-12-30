@@ -2,8 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
-
 class Encoding
 {
 
@@ -27,22 +25,23 @@ class Encoding
 	{
 		$encoding = new Encoding();
 
-		$encoding->contentType = Helpers::getStringOrNull($data, 'contentType');
+		/** @var string|null $contentType */
+		$contentType = $data['contentType'] ?? null;
+		$encoding->contentType = $contentType;
 
-		$headers = Helpers::getArrayOrNull($data, 'headers') ?? [];
+		/** @var array<string, mixed[]> $headers */
+		$headers = $data['headers'] ?? [];
 		foreach ($headers as $name => $header) {
-			if (is_array($header)) {
-				if (isset($header['$ref'])) {
-					$encoding->addHeader((string) $name, Reference::fromArray($header));
-				} else {
-					$encoding->addHeader((string) $name, Header::fromArray($header));
-				}
+			if (isset($header['$ref'])) {
+				$encoding->addHeader($name, Reference::fromArray($header));
+			} else {
+				$encoding->addHeader($name, Header::fromArray($header));
 			}
 		}
 
-		$encoding->style = Helpers::getStringOrNull($data, 'style');
-		$encoding->explode = Helpers::getBoolOrNull($data, 'explode');
-		$encoding->allowReserved = Helpers::getBoolOrNull($data, 'allowReserved');
+		$encoding->style = $data['style'] ?? null;
+		$encoding->explode = $data['explode'] ?? null;
+		$encoding->allowReserved = $data['allowReserved'] ?? null;
 		$encoding->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $encoding;

@@ -2,7 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
 use InvalidArgumentException;
 
 class Parameter
@@ -66,16 +65,22 @@ class Parameter
 	 */
 	public static function fromArray(array $data): Parameter
 	{
-		$parameter = new Parameter(Helpers::getString($data, 'name'), Helpers::getString($data, 'in'));
-		$parameter->setDescription(Helpers::getStringOrNull($data, 'description'));
-		$parameter->setRequired(Helpers::getBoolOrNull($data, 'required'));
-		$parameter->setDeprecated(Helpers::getBoolOrNull($data, 'deprecated'));
-		$parameter->setAllowEmptyValue(Helpers::getBoolOrNull($data, 'allowEmptyValue'));
-		$parameter->setStyle(Helpers::getStringOrNull($data, 'style'));
-		$parameter->setExplode(Helpers::getBoolOrNull($data, 'explode'));
-		$parameter->setAllowReserved(Helpers::getBoolOrNull($data, 'allowReserved'));
+		/** @var string $name */
+		$name = $data['name'];
+		/** @var string $in */
+		$in = $data['in'];
+		$parameter = new Parameter($name, $in);
+		/** @var string|null $description */
+		$description = $data['description'] ?? null;
+		$parameter->setDescription($description);
+		$parameter->setRequired($data['required'] ?? null);
+		$parameter->setDeprecated($data['deprecated'] ?? null);
+		$parameter->setAllowEmptyValue($data['allowEmptyValue'] ?? null);
+		$parameter->setStyle($data['style'] ?? null);
+		$parameter->setExplode($data['explode'] ?? null);
+		$parameter->setAllowReserved($data['allowReserved'] ?? null);
 
-		$schema = Helpers::getArrayOrNull($data, 'schema');
+		$schema = $data['schema'] ?? null;
 		if ($schema !== null) {
 			if (isset($schema['$ref'])) {
 				$parameter->setSchema(Reference::fromArray($schema));
@@ -85,9 +90,7 @@ class Parameter
 		}
 
 		$parameter->setExample($data['example'] ?? null);
-		/** @var mixed[] $examples */
-		$examples = Helpers::getArrayOrNull($data, 'examples') ?? [];
-		$parameter->setExamples($examples);
+		$parameter->setExamples($data['examples'] ?? []);
 		$parameter->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $parameter;

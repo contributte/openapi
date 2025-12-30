@@ -2,8 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
-
 class Contact
 {
 
@@ -21,9 +19,15 @@ class Contact
 	public static function fromArray(array $data): Contact
 	{
 		$contact = new Contact();
-		$contact->setName(Helpers::getStringOrNull($data, 'name'));
-		$contact->setUrl(Helpers::getStringOrNull($data, 'url'));
-		$contact->setEmail(Helpers::getStringOrNull($data, 'email'));
+		/** @var string|null $name */
+		$name = $data['name'] ?? null;
+		$contact->setName($name);
+		/** @var string|null $url */
+		$url = $data['url'] ?? null;
+		$contact->setUrl($url);
+		/** @var string|null $email */
+		$email = $data['email'] ?? null;
+		$contact->setEmail($email);
 		$contact->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $contact;

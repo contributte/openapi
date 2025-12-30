@@ -2,8 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
-
 class PathItem
 {
 
@@ -51,7 +49,8 @@ class PathItem
 		$pathItem = new PathItem();
 
 		foreach (self::$allowedOperations as $allowedOperation) {
-			$operationData = Helpers::getArrayOrNull($pathItemData, $allowedOperation);
+			/** @var mixed[]|null $operationData */
+			$operationData = $pathItemData[$allowedOperation] ?? null;
 			if ($operationData === null) {
 				continue;
 			}
@@ -59,24 +58,28 @@ class PathItem
 			$pathItem->setOperation($allowedOperation, Operation::fromArray($operationData));
 		}
 
-		$pathItem->setSummary(Helpers::getStringOrNull($pathItemData, 'summary'));
-		$pathItem->setDescription(Helpers::getStringOrNull($pathItemData, 'description'));
+		/** @var string|null $summary */
+		$summary = $pathItemData['summary'] ?? null;
+		$pathItem->setSummary($summary);
+		/** @var string|null $description */
+		$description = $pathItemData['description'] ?? null;
+		$pathItem->setDescription($description);
 
-		$servers = Helpers::getArrayOrNull($pathItemData, 'servers') ?? [];
+		/** @var mixed[] $servers */
+		$servers = $pathItemData['servers'] ?? [];
 		foreach ($servers as $server) {
-			if (is_array($server)) {
-				$pathItem->addServer(Server::fromArray($server));
-			}
+			/** @var mixed[] $server */
+			$pathItem->addServer(Server::fromArray($server));
 		}
 
-		$parameters = Helpers::getArrayOrNull($pathItemData, 'parameters') ?? [];
+		/** @var mixed[] $parameters */
+		$parameters = $pathItemData['parameters'] ?? [];
 		foreach ($parameters as $parameter) {
-			if (is_array($parameter)) {
-				if (isset($parameter['$ref'])) {
-					$pathItem->addParameter(Reference::fromArray($parameter));
-				} else {
-					$pathItem->addParameter(Parameter::fromArray($parameter));
-				}
+			/** @var mixed[] $parameter */
+			if (isset($parameter['$ref'])) {
+				$pathItem->addParameter(Reference::fromArray($parameter));
+			} else {
+				$pathItem->addParameter(Parameter::fromArray($parameter));
 			}
 		}
 

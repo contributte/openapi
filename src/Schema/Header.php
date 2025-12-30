@@ -2,8 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
-
 class Header
 {
 
@@ -34,15 +32,17 @@ class Header
 	public static function fromArray(array $data): Header
 	{
 		$header = new Header();
-		$header->setDescription(Helpers::getStringOrNull($data, 'description'));
-		$header->setRequired(Helpers::getBoolOrNull($data, 'required'));
-		$header->setDeprecated(Helpers::getBoolOrNull($data, 'deprecated'));
-		$header->setAllowEmptyValue(Helpers::getBoolOrNull($data, 'allowEmptyValue'));
-		$header->setStyle(Helpers::getStringOrNull($data, 'style'));
-		$header->setExplode(Helpers::getBoolOrNull($data, 'explode'));
-		$header->setAllowReserved(Helpers::getBoolOrNull($data, 'allowReserved'));
+		/** @var string|null $description */
+		$description = $data['description'] ?? null;
+		$header->setDescription($description);
+		$header->setRequired($data['required'] ?? null);
+		$header->setDeprecated($data['deprecated'] ?? null);
+		$header->setAllowEmptyValue($data['allowEmptyValue'] ?? null);
+		$header->setStyle($data['style'] ?? null);
+		$header->setExplode($data['explode'] ?? null);
+		$header->setAllowReserved($data['allowReserved'] ?? null);
 
-		$schema = Helpers::getArrayOrNull($data, 'schema');
+		$schema = $data['schema'] ?? null;
 		if ($schema !== null) {
 			if (isset($schema['$ref'])) {
 				$header->setSchema(Reference::fromArray($schema));
@@ -52,9 +52,7 @@ class Header
 		}
 
 		$header->setExample($data['example'] ?? null);
-		/** @var mixed[] $examples */
-		$examples = Helpers::getArrayOrNull($data, 'examples') ?? [];
-		$header->setExamples($examples);
+		$header->setExamples($data['examples'] ?? []);
 
 		return $header;
 	}

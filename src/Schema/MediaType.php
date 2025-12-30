@@ -2,8 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
-
 class MediaType
 {
 
@@ -26,7 +24,8 @@ class MediaType
 	{
 		$mediaType = new MediaType();
 
-		$schema = Helpers::getArrayOrNull($data, 'schema');
+		/** @var mixed[]|null $schema */
+		$schema = $data['schema'] ?? null;
 		if ($schema !== null) {
 			if (isset($schema['$ref'])) {
 				$mediaType->setSchema(Reference::fromArray($schema));
@@ -37,27 +36,25 @@ class MediaType
 
 		$mediaType->setExample($data['example'] ?? null);
 
-		$examples = Helpers::getArrayOrNull($data, 'examples');
+		/** @var array<string, mixed[]>|null $examples */
+		$examples = $data['examples'] ?? null;
 		if ($examples !== null) {
 			foreach ($examples as $name => $example) {
-				if (is_array($example)) {
-					if (isset($example['$ref'])) {
-						$mediaType->addExample((string) $name, Reference::fromArray($example));
-					} else {
-						$mediaType->addExample((string) $name, Example::fromArray($example));
-					}
+				if (isset($example['$ref'])) {
+					$mediaType->addExample($name, Reference::fromArray($example));
+				} else {
+					$mediaType->addExample($name, Example::fromArray($example));
 				}
 			}
 		}
 
-		$encoding = Helpers::getArrayOrNull($data, 'encoding') ?? [];
+		/** @var array<string, mixed[]> $encoding */
+		$encoding = $data['encoding'] ?? [];
 		foreach ($encoding as $name => $encodingItem) {
-			if (is_array($encodingItem)) {
-				if (isset($encodingItem['$ref'])) {
-					$mediaType->addEncoding((string) $name, Reference::fromArray($encodingItem));
-				} else {
-					$mediaType->addEncoding((string) $name, Encoding::fromArray($encodingItem));
-				}
+			if (isset($encodingItem['$ref'])) {
+				$mediaType->addEncoding($name, Reference::fromArray($encodingItem));
+			} else {
+				$mediaType->addEncoding($name, Encoding::fromArray($encodingItem));
 			}
 		}
 

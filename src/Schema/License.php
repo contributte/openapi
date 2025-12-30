@@ -2,8 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
-
 class License
 {
 
@@ -25,9 +23,13 @@ class License
 	 */
 	public static function fromArray(array $data): License
 	{
-		$license = new License(Helpers::getString($data, 'name'));
-		$license->setIdentifier(Helpers::getStringOrNull($data, 'identifier'));
-		$license->setUrl(Helpers::getStringOrNull($data, 'url'));
+		/** @var string $name */
+		$name = $data['name'];
+		$license = new License($name);
+		/** @var string|null $identifier */
+		$identifier = $data['identifier'] ?? null;
+		$license->setIdentifier($identifier);
+		$license->setUrl($data['url'] ?? null);
 		$license->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $license;

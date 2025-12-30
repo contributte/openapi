@@ -2,8 +2,6 @@
 
 namespace Contributte\OpenApi\Schema;
 
-use Contributte\OpenApi\Utils\Helpers;
-
 class RequestBody
 {
 
@@ -22,14 +20,17 @@ class RequestBody
 	public static function fromArray(array $data): RequestBody
 	{
 		$requestBody = new RequestBody();
-		$requestBody->setRequired(Helpers::getBoolOrNull($data, 'required') ?? false);
-		$requestBody->setDescription(Helpers::getStringOrNull($data, 'description'));
+		/** @var bool $required */
+		$required = $data['required'] ?? false;
+		$requestBody->setRequired($required);
+		/** @var string|null $description */
+		$description = $data['description'] ?? null;
+		$requestBody->setDescription($description);
 
-		$content = Helpers::getArrayOrNull($data, 'content') ?? [];
+		/** @var array<string, mixed[]> $content */
+		$content = $data['content'] ?? [];
 		foreach ($content as $key => $mediaType) {
-			if (is_array($mediaType)) {
-				$requestBody->addMediaType((string) $key, MediaType::fromArray($mediaType));
-			}
+			$requestBody->addMediaType($key, MediaType::fromArray($mediaType));
 		}
 
 		$requestBody->setVendorExtensions(VendorExtensions::fromArray($data));
