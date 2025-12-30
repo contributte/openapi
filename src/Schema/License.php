@@ -19,7 +19,7 @@ class License
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{name: string, identifier?: string, url?: string} $data
 	 */
 	public static function fromArray(array $data): License
 	{

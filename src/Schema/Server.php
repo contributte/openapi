@@ -20,7 +20,7 @@ class Server
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{url: string, description?: string, variables?: array<string, array{default: string, description?: string, enum?: string[]}>} $data
 	 */
 	public static function fromArray(array $data): Server
 	{

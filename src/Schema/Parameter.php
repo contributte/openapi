@@ -61,7 +61,7 @@ class Parameter
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $data
 	 */
 	public static function fromArray(array $data): Parameter
 	{

@@ -44,7 +44,7 @@ class Operation
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{deprecated?: bool, operationId?: string, tags?: string[], summary?: string, description?: string, externalDocs?: mixed[], parameters?: mixed[], requestBody?: mixed[], responses?: mixed[], security?: mixed[], servers?: mixed[], callbacks?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): Operation
 	{
@@ -69,7 +69,7 @@ class Operation
 		$description = $data['description'] ?? null;
 		$operation->setDescription($description);
 
-		/** @var mixed[]|null $externalDocs */
+		/** @var array{url: string, description?: string}|null $externalDocs */
 		$externalDocs = $data['externalDocs'] ?? null;
 		if ($externalDocs !== null) {
 			$operation->setExternalDocs(ExternalDocumentation::fromArray($externalDocs));
@@ -85,12 +85,14 @@ class Operation
 				continue;
 			}
 
-			$parameter = Parameter::fromArray($parameterData);
+			/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedParameterData */
+			$typedParameterData = $parameterData;
+			$parameter = Parameter::fromArray($typedParameterData);
 
 			if ($operation->hasParameter($parameter)) {
 				$operation->mergeParameter($parameter);
 			} else {
-				$operation->addParameter(Parameter::fromArray($parameterData));
+				$operation->addParameter(Parameter::fromArray($typedParameterData));
 			}
 		}
 
@@ -100,11 +102,13 @@ class Operation
 			if (isset($requestBody['$ref'])) {
 				$operation->setRequestBody(Reference::fromArray($requestBody));
 			} else {
-				$operation->setRequestBody(RequestBody::fromArray($requestBody));
+				/** @var array{description?: string, required?: bool, content?: array<string, mixed[]>} $typedRequestBody */
+				$typedRequestBody = $requestBody;
+				$operation->setRequestBody(RequestBody::fromArray($typedRequestBody));
 			}
 		}
 
-		/** @var mixed[]|null $responses */
+		/** @var array<string, mixed>|null $responses */
 		$responses = $data['responses'] ?? null;
 		if ($responses !== null) {
 			$operation->setResponses(Responses::fromArray($responses));
@@ -124,7 +128,7 @@ class Operation
 		/** @var mixed[] $servers */
 		$servers = $data['servers'] ?? [];
 		foreach ($servers as $server) {
-			/** @var mixed[] $server */
+			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, description?: string, enum?: string[]}>} $server */
 			$operation->addServer(Server::fromArray($server));
 		}
 
@@ -192,7 +196,7 @@ class Operation
 		$originalParameter = $this->parameters[$this->getParameterKey($parameter)];
 
 		$merged = Helpers::merge($parameter->toArray(), $originalParameter->toArray());
-		/** @var array<mixed> $mergedArray */
+		/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $mergedArray */
 		$mergedArray = is_array($merged) ? $merged : [];
 		$parameter = Parameter::fromArray($mergedArray);
 

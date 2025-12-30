@@ -11,7 +11,7 @@ class Paths
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array<string, mixed> $data
 	 */
 	public static function fromArray(array $data): Paths
 	{
@@ -23,9 +23,11 @@ class Paths
 			}
 
 			if (isset($pathItemData['$ref'])) {
-				$paths->setPathItem((string) $path, Reference::fromArray($pathItemData));
+				$paths->setPathItem($path, Reference::fromArray($pathItemData));
 			} else {
-				$paths->setPathItem((string) $path, PathItem::fromArray($pathItemData));
+				/** @var array{summary?: string, description?: string, get?: mixed[], put?: mixed[], post?: mixed[], delete?: mixed[], options?: mixed[], head?: mixed[], patch?: mixed[], trace?: mixed[], servers?: mixed[], parameters?: mixed[]} $typedPathItemData */
+				$typedPathItemData = $pathItemData;
+				$paths->setPathItem($path, PathItem::fromArray($typedPathItemData));
 			}
 		}
 

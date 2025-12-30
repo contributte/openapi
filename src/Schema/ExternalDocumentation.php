@@ -17,7 +17,7 @@ class ExternalDocumentation
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{url: string, description?: string} $data
 	 */
 	public static function fromArray(array $data): ExternalDocumentation
 	{

@@ -16,7 +16,7 @@ class Example
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{summary?: string, description?: string, value?: mixed, externalValue?: string} $data
 	 */
 	public static function fromArray(array $data): self
 	{

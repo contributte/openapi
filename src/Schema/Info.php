@@ -28,7 +28,7 @@ class Info
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{title: string, version: string, summary?: string, description?: string, termsOfService?: string, license?: array{name: string, identifier?: string, url?: string}, contact?: array{name?: string, url?: string, email?: string}} $data
 	 */
 	public static function fromArray(array $data): Info
 	{

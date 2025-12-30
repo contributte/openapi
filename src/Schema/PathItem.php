@@ -42,7 +42,7 @@ class PathItem
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $pathItemData
+	 * @param array{summary?: string, description?: string, get?: mixed[], put?: mixed[], post?: mixed[], delete?: mixed[], options?: mixed[], head?: mixed[], patch?: mixed[], trace?: mixed[], servers?: mixed[], parameters?: mixed[]} $pathItemData
 	 */
 	public static function fromArray(array $pathItemData): PathItem
 	{
@@ -55,7 +55,9 @@ class PathItem
 				continue;
 			}
 
-			$pathItem->setOperation($allowedOperation, Operation::fromArray($operationData));
+			/** @var array{deprecated?: bool, operationId?: string, tags?: string[], summary?: string, description?: string, externalDocs?: mixed[], parameters?: mixed[], requestBody?: mixed[], responses?: mixed[], security?: mixed[], servers?: mixed[], callbacks?: array<string, mixed[]>} $typedOperationData */
+			$typedOperationData = $operationData;
+			$pathItem->setOperation($allowedOperation, Operation::fromArray($typedOperationData));
 		}
 
 		/** @var string|null $summary */
@@ -68,7 +70,7 @@ class PathItem
 		/** @var mixed[] $servers */
 		$servers = $pathItemData['servers'] ?? [];
 		foreach ($servers as $server) {
-			/** @var mixed[] $server */
+			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, description?: string, enum?: string[]}>} $server */
 			$pathItem->addServer(Server::fromArray($server));
 		}
 
@@ -79,7 +81,9 @@ class PathItem
 			if (isset($parameter['$ref'])) {
 				$pathItem->addParameter(Reference::fromArray($parameter));
 			} else {
-				$pathItem->addParameter(Parameter::fromArray($parameter));
+				/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedParameter */
+				$typedParameter = $parameter;
+				$pathItem->addParameter(Parameter::fromArray($typedParameter));
 			}
 		}
 

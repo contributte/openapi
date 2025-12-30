@@ -15,7 +15,7 @@ class RequestBody
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{description?: string, required?: bool, content?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): RequestBody
 	{
@@ -30,6 +30,7 @@ class RequestBody
 		/** @var array<string, mixed[]> $content */
 		$content = $data['content'] ?? [];
 		foreach ($content as $key => $mediaType) {
+			/** @var array{schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>, encoding?: array<string, mixed[]>} $mediaType */
 			$requestBody->addMediaType($key, MediaType::fromArray($mediaType));
 		}
 

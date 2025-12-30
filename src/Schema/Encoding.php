@@ -19,7 +19,7 @@ class Encoding
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{contentType?: string, headers?: array<string, mixed[]>, style?: string, explode?: bool, allowReserved?: bool} $data
 	 */
 	public static function fromArray(array $data): self
 	{
@@ -35,7 +35,9 @@ class Encoding
 			if (isset($header['$ref'])) {
 				$encoding->addHeader($name, Reference::fromArray($header));
 			} else {
-				$encoding->addHeader($name, Header::fromArray($header));
+				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedHeader */
+				$typedHeader = $header;
+				$encoding->addHeader($name, Header::fromArray($typedHeader));
 			}
 		}
 

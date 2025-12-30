@@ -61,7 +61,7 @@ class SecurityScheme
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{type: string, name?: string, description?: string, in?: string, scheme?: string, bearerFormat?: string, flows?: array<string, mixed[]>, openIdConnectUrl?: string} $data
 	 */
 	public static function fromArray(array $data): SecurityScheme
 	{
@@ -75,6 +75,7 @@ class SecurityScheme
 		$securityScheme->setIn($data['in'] ?? null);
 		$securityScheme->setScheme($data['scheme'] ?? null);
 		$securityScheme->setBearerFormat($data['bearerFormat'] ?? null);
+		/** @var array<string, array{authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: array<string, string>}> $flowsData */
 		$flowsData = $data['flows'] ?? [];
 		$securityScheme->setFlows(array_map(static fn (array $flow): OAuthFlow => OAuthFlow::fromArray($flow), $flowsData));
 		$securityScheme->setOpenIdConnectUrl($data['openIdConnectUrl'] ?? null);

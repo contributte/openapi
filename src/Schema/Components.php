@@ -38,7 +38,7 @@ class Components
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{schemas?: array<string, mixed[]>, responses?: array<string, mixed[]>, parameters?: array<string, mixed[]>, examples?: array<string, mixed[]>, requestBodies?: array<string, mixed[]>, headers?: array<string, mixed[]>, securitySchemes?: array<string, mixed[]>, links?: array<string, mixed[]>, callbacks?: array<string, mixed[]>, pathItems?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): Components
 	{
@@ -54,9 +54,11 @@ class Components
 
 		foreach ($data['responses'] ?? [] as $responseKey => $responseData) {
 			if (isset($responseData['$ref'])) {
-				$components->setResponse((string) $responseKey, Reference::fromArray($responseData));
+				$components->setResponse($responseKey, Reference::fromArray($responseData));
 			} else {
-				$components->setResponse((string) $responseKey, Response::fromArray($responseData));
+				/** @var array{description: string, headers?: array<string, mixed[]>, content?: array<string, mixed[]>, links?: array<string, mixed[]>} $typedResponseData */
+				$typedResponseData = $responseData;
+				$components->setResponse($responseKey, Response::fromArray($typedResponseData));
 			}
 		}
 
@@ -64,7 +66,9 @@ class Components
 			if (isset($parameterData['$ref'])) {
 				$components->setParameter($parameterKey, Reference::fromArray($parameterData));
 			} else {
-				$components->setParameter($parameterKey, Parameter::fromArray($parameterData));
+				/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedParameterData */
+				$typedParameterData = $parameterData;
+				$components->setParameter($parameterKey, Parameter::fromArray($typedParameterData));
 			}
 		}
 
@@ -72,7 +76,9 @@ class Components
 			if (isset($exampleData['$ref'])) {
 				$components->setExample($exampleKey, Reference::fromArray($exampleData));
 			} else {
-				$components->setExample($exampleKey, Example::fromArray($exampleData));
+				/** @var array{summary?: string, description?: string, value?: mixed, externalValue?: string} $typedExampleData */
+				$typedExampleData = $exampleData;
+				$components->setExample($exampleKey, Example::fromArray($typedExampleData));
 			}
 		}
 
@@ -80,7 +86,9 @@ class Components
 			if (isset($requestBodyData['$ref'])) {
 				$components->setRequestBody($requestBodyKey, Reference::fromArray($requestBodyData));
 			} else {
-				$components->setRequestBody($requestBodyKey, RequestBody::fromArray($requestBodyData));
+				/** @var array{description?: string, required?: bool, content?: array<string, mixed[]>} $typedRequestBodyData */
+				$typedRequestBodyData = $requestBodyData;
+				$components->setRequestBody($requestBodyKey, RequestBody::fromArray($typedRequestBodyData));
 			}
 		}
 
@@ -88,7 +96,9 @@ class Components
 			if (isset($headerData['$ref'])) {
 				$components->setHeader($headerKey, Reference::fromArray($headerData));
 			} else {
-				$components->setHeader($headerKey, Header::fromArray($headerData));
+				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedHeaderData */
+				$typedHeaderData = $headerData;
+				$components->setHeader($headerKey, Header::fromArray($typedHeaderData));
 			}
 		}
 
@@ -96,7 +106,9 @@ class Components
 			if (isset($securitySchemeData['$ref'])) {
 				$components->setSecurityScheme($securitySchemeKey, Reference::fromArray($securitySchemeData));
 			} else {
-				$components->setSecurityScheme($securitySchemeKey, SecurityScheme::fromArray($securitySchemeData));
+				/** @var array{type: string, name?: string, description?: string, in?: string, scheme?: string, bearerFormat?: string, flows?: array<string, mixed[]>, openIdConnectUrl?: string} $typedSecuritySchemeData */
+				$typedSecuritySchemeData = $securitySchemeData;
+				$components->setSecurityScheme($securitySchemeKey, SecurityScheme::fromArray($typedSecuritySchemeData));
 			}
 		}
 
@@ -112,7 +124,9 @@ class Components
 			if (isset($linkData['$ref'])) {
 				$components->setLink($linkKey, Reference::fromArray($linkData));
 			} else {
-				$components->setLink($linkKey, Link::fromArray($linkData));
+				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string}} $typedLinkData */
+				$typedLinkData = $linkData;
+				$components->setLink($linkKey, Link::fromArray($typedLinkData));
 			}
 		}
 
@@ -120,7 +134,9 @@ class Components
 			if (isset($pathItemData['$ref'])) {
 				$components->setPathItem($pathItemKey, Reference::fromArray($pathItemData));
 			} else {
-				$components->setPathItem($pathItemKey, PathItem::fromArray($pathItemData));
+				/** @var array{summary?: string, description?: string, get?: mixed[], put?: mixed[], post?: mixed[], delete?: mixed[], options?: mixed[], head?: mixed[], patch?: mixed[], trace?: mixed[], servers?: mixed[], parameters?: mixed[]} $typedPathItemData */
+				$typedPathItemData = $pathItemData;
+				$components->setPathItem($pathItemKey, PathItem::fromArray($typedPathItemData));
 			}
 		}
 

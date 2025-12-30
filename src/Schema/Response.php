@@ -24,7 +24,7 @@ class Response
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{description: string, headers?: array<string, mixed[]>, content?: array<string, mixed[]>, links?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): Response
 	{
@@ -38,7 +38,9 @@ class Response
 			if (isset($headerData['$ref'])) {
 				$response->setHeader($key, Reference::fromArray($headerData));
 			} else {
-				$response->setHeader($key, Header::fromArray($headerData));
+				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedHeaderData */
+				$typedHeaderData = $headerData;
+				$response->setHeader($key, Header::fromArray($typedHeaderData));
 			}
 		}
 
@@ -47,6 +49,7 @@ class Response
 		if ($content !== null) {
 			$response->content = [];
 			foreach ($content as $key => $contentData) {
+				/** @var array{schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>, encoding?: array<string, mixed[]>} $contentData */
 				$response->setContent($key, MediaType::fromArray($contentData));
 			}
 		}
@@ -57,7 +60,9 @@ class Response
 			if (isset($linkData['$ref'])) {
 				$response->setLink($key, Reference::fromArray($linkData));
 			} else {
-				$response->setLink($key, Link::fromArray($linkData));
+				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string}} $typedLinkData */
+				$typedLinkData = $linkData;
+				$response->setLink($key, Link::fromArray($typedLinkData));
 			}
 		}
 
