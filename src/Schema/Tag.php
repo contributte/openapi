@@ -23,14 +23,9 @@ class Tag
 	 */
 	public static function fromArray(array $data): Tag
 	{
-		/** @var string $name */
-		$name = $data['name'];
-		$tag = new Tag($name);
-		/** @var string|null $description */
-		$description = $data['description'] ?? null;
-		$tag->setDescription($description);
-		$externalDocs = $data['externalDocs'] ?? null;
-		$tag->setExternalDocs($externalDocs !== null ? ExternalDocumentation::fromArray($externalDocs) : null);
+		$tag = new Tag($data['name']);
+		$tag->setDescription($data['description'] ?? null);
+		$tag->setExternalDocs(isset($data['externalDocs']) ? ExternalDocumentation::fromArray($data['externalDocs']) : null);
 		$tag->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $tag;

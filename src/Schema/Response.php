@@ -28,41 +28,28 @@ class Response
 	 */
 	public static function fromArray(array $data): Response
 	{
-		/** @var string $description */
-		$description = $data['description'];
-		$response = new Response($description);
+		$response = new Response($data['description']);
 
-		/** @var array<string, mixed[]> $headers */
-		$headers = $data['headers'] ?? [];
-		foreach ($headers as $key => $headerData) {
+		foreach ($data['headers'] ?? [] as $key => $headerData) {
 			if (isset($headerData['$ref'])) {
 				$response->setHeader($key, Reference::fromArray($headerData));
 			} else {
-				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedHeaderData */
-				$typedHeaderData = $headerData;
-				$response->setHeader($key, Header::fromArray($typedHeaderData));
+				$response->setHeader($key, Header::fromArray($headerData)); // @phpstan-ignore argument.type
 			}
 		}
 
-		/** @var array<string, mixed[]>|null $content */
-		$content = $data['content'] ?? null;
-		if ($content !== null) {
+		if (isset($data['content'])) {
 			$response->content = [];
-			foreach ($content as $key => $contentData) {
-				/** @var array{schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>, encoding?: array<string, mixed[]>} $contentData */
-				$response->setContent($key, MediaType::fromArray($contentData));
+			foreach ($data['content'] as $key => $contentData) {
+				$response->setContent($key, MediaType::fromArray($contentData)); // @phpstan-ignore argument.type
 			}
 		}
 
-		/** @var array<string, mixed[]> $links */
-		$links = $data['links'] ?? [];
-		foreach ($links as $key => $linkData) {
+		foreach ($data['links'] ?? [] as $key => $linkData) {
 			if (isset($linkData['$ref'])) {
 				$response->setLink($key, Reference::fromArray($linkData));
 			} else {
-				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string}} $typedLinkData */
-				$typedLinkData = $linkData;
-				$response->setLink($key, Link::fromArray($typedLinkData));
+				$response->setLink($key, Link::fromArray($linkData)); // @phpstan-ignore argument.type
 			}
 		}
 

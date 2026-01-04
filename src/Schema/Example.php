@@ -21,12 +21,8 @@ class Example
 	public static function fromArray(array $data): self
 	{
 		$example = new Example();
-		/** @var string|null $summary */
-		$summary = $data['summary'] ?? null;
-		$example->summary = $summary;
-		/** @var string|null $description */
-		$description = $data['description'] ?? null;
-		$example->description = $description;
+		$example->summary = $data['summary'] ?? null;
+		$example->description = $data['description'] ?? null;
 		$example->value = $data['value'] ?? null;
 		$example->externalValue = $data['externalValue'] ?? null;
 		$example->vendorExtensions = VendorExtensions::fromArray($data);

@@ -61,23 +61,17 @@ class SecurityScheme
 	}
 
 	/**
-	 * @param array{type: string, name?: string, description?: string, in?: string, scheme?: string, bearerFormat?: string, flows?: array<string, mixed[]>, openIdConnectUrl?: string} $data
+	 * @param array{type: string, name?: string, description?: string, in?: string, scheme?: string, bearerFormat?: string, flows?: mixed[], openIdConnectUrl?: string} $data
 	 */
 	public static function fromArray(array $data): SecurityScheme
 	{
-		/** @var string $type */
-		$type = $data['type'];
-		$securityScheme = new SecurityScheme($type);
-		/** @var string|null $name */
-		$name = $data['name'] ?? null;
-		$securityScheme->setName($name);
+		$securityScheme = new SecurityScheme($data['type']);
+		$securityScheme->setName($data['name'] ?? null);
 		$securityScheme->setDescription($data['description'] ?? null);
 		$securityScheme->setIn($data['in'] ?? null);
 		$securityScheme->setScheme($data['scheme'] ?? null);
 		$securityScheme->setBearerFormat($data['bearerFormat'] ?? null);
-		/** @var array<string, array{authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: array<string, string>}> $flowsData */
-		$flowsData = $data['flows'] ?? [];
-		$securityScheme->setFlows(array_map(static fn (array $flow): OAuthFlow => OAuthFlow::fromArray($flow), $flowsData));
+		$securityScheme->setFlows(array_map(static fn (array $flow): OAuthFlow => OAuthFlow::fromArray($flow), $data['flows'] ?? [])); // @phpstan-ignore argument.type, argument.type
 		$securityScheme->setOpenIdConnectUrl($data['openIdConnectUrl'] ?? null);
 
 		return $securityScheme;

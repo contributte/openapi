@@ -11,7 +11,7 @@ class Responses
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param array<string, mixed> $data
+	 * @param array<string, mixed[]|mixed> $data
 	 */
 	public static function fromArray(array $data): Responses
 	{
@@ -25,9 +25,7 @@ class Responses
 			if (isset($responseData['$ref'])) {
 				$responses->setResponse($key, Reference::fromArray($responseData));
 			} else {
-				/** @var array{description: string, headers?: array<string, mixed[]>, content?: array<string, mixed[]>, links?: array<string, mixed[]>} $typedResponseData */
-				$typedResponseData = $responseData;
-				$responses->setResponse($key, Response::fromArray($typedResponseData));
+				$responses->setResponse($key, Response::fromArray($responseData)); // @phpstan-ignore argument.type
 			}
 		}
 

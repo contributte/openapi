@@ -30,20 +30,11 @@ class OAuthFlow
 	 */
 	public static function fromArray(array $data): self
 	{
-		/** @var string $authorizationUrl */
-		$authorizationUrl = $data['authorizationUrl'];
-		/** @var string $tokenUrl */
-		$tokenUrl = $data['tokenUrl'];
-		/** @var string $refreshUrl */
-		$refreshUrl = $data['refreshUrl'];
-		/** @var array<string, string> $scopes */
-		$scopes = $data['scopes'];
-
 		return new self(
-			$authorizationUrl,
-			$tokenUrl,
-			$refreshUrl,
-			$scopes,
+			$data['authorizationUrl'],
+			$data['tokenUrl'],
+			$data['refreshUrl'],
+			$data['scopes'],
 		);
 	}
 

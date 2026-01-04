@@ -32,9 +32,7 @@ class Header
 	public static function fromArray(array $data): Header
 	{
 		$header = new Header();
-		/** @var string|null $description */
-		$description = $data['description'] ?? null;
-		$header->setDescription($description);
+		$header->setDescription($data['description'] ?? null);
 		$header->setRequired($data['required'] ?? null);
 		$header->setDeprecated($data['deprecated'] ?? null);
 		$header->setAllowEmptyValue($data['allowEmptyValue'] ?? null);
@@ -42,12 +40,11 @@ class Header
 		$header->setExplode($data['explode'] ?? null);
 		$header->setAllowReserved($data['allowReserved'] ?? null);
 
-		$schema = $data['schema'] ?? null;
-		if ($schema !== null) {
-			if (isset($schema['$ref'])) {
-				$header->setSchema(Reference::fromArray($schema));
+		if (isset($data['schema'])) {
+			if (isset($data['schema']['$ref'])) {
+				$header->setSchema(Reference::fromArray($data['schema']));
 			} else {
-				$header->setSchema(Schema::fromArray($schema));
+				$header->setSchema(Schema::fromArray($data['schema']));
 			}
 		}
 

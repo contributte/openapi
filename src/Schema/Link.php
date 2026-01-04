@@ -21,21 +21,17 @@ class Link
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string}} $data
+	 * @param array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string, variables?: array<string, array{default: string, enum?: string[], description?: string}>}} $data
 	 */
 	public static function fromArray(array $data): Link
 	{
 		$link = new Link();
-		/** @var string|null $operationRef */
-		$operationRef = $data['operationRef'] ?? null;
-		$link->setOperationRef($operationRef);
+		$link->setOperationRef($data['operationRef'] ?? null);
 		$link->setOperationId($data['operationId'] ?? null);
 		$link->setParameters($data['parameters'] ?? []);
 		$link->setRequestBody($data['requestBody'] ?? null);
 		$link->setDescription($data['description'] ?? null);
-		/** @var array{url: string, description?: string, variables?: array<string, array{default: string, description?: string, enum?: string[]}>}|null $server */
-		$server = $data['server'] ?? null;
-		$link->setServer($server !== null ? Server::fromArray($server) : null);
+		$link->setServer(isset($data['server']) ? Server::fromArray($data['server']) : null);
 		$link->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $link;

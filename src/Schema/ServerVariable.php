@@ -20,16 +20,12 @@ class ServerVariable
 	}
 
 	/**
-	 * @param array{default: string, description?: string, enum?: string[]} $data
+	 * @param array{default: string, enum?: string[], description?: string} $data
 	 */
 	public static function fromArray(array $data): ServerVariable
 	{
-		/** @var string $default */
-		$default = $data['default'];
-		$variable = new ServerVariable($default);
-		/** @var string|null $description */
-		$description = $data['description'] ?? null;
-		$variable->setDescription($description);
+		$variable = new ServerVariable($data['default']);
+		$variable->setDescription($data['description'] ?? null);
 		$variable->setEnum($data['enum'] ?? []);
 		$variable->setVendorExtensions(VendorExtensions::fromArray($data));
 

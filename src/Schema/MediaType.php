@@ -24,41 +24,29 @@ class MediaType
 	{
 		$mediaType = new MediaType();
 
-		/** @var mixed[]|null $schema */
-		$schema = $data['schema'] ?? null;
-		if ($schema !== null) {
-			if (isset($schema['$ref'])) {
-				$mediaType->setSchema(Reference::fromArray($schema));
+		if (isset($data['schema'])) {
+			if (isset($data['schema']['$ref'])) {
+				$mediaType->setSchema(Reference::fromArray($data['schema']));
 			} else {
-				$mediaType->setSchema(Schema::fromArray($schema));
+				$mediaType->setSchema(Schema::fromArray($data['schema']));
 			}
 		}
 
 		$mediaType->setExample($data['example'] ?? null);
 
-		/** @var array<string, mixed[]>|null $examples */
-		$examples = $data['examples'] ?? null;
-		if ($examples !== null) {
-			foreach ($examples as $name => $example) {
-				if (isset($example['$ref'])) {
-					$mediaType->addExample($name, Reference::fromArray($example));
-				} else {
-					/** @var array{summary?: string, description?: string, value?: mixed, externalValue?: string} $typedExample */
-					$typedExample = $example;
-					$mediaType->addExample($name, Example::fromArray($typedExample));
-				}
+		foreach ($data['examples'] ?? [] as $name => $example) {
+			if (isset($example['$ref'])) {
+				$mediaType->addExample($name, Reference::fromArray($example));
+			} else {
+				$mediaType->addExample($name, Example::fromArray($example)); // @phpstan-ignore argument.type
 			}
 		}
 
-		/** @var array<string, mixed[]> $encoding */
-		$encoding = $data['encoding'] ?? [];
-		foreach ($encoding as $name => $encodingItem) {
+		foreach ($data['encoding'] ?? [] as $name => $encodingItem) {
 			if (isset($encodingItem['$ref'])) {
 				$mediaType->addEncoding($name, Reference::fromArray($encodingItem));
 			} else {
-				/** @var array{contentType?: string, headers?: array<string, mixed[]>, style?: string, explode?: bool, allowReserved?: bool} $typedEncodingItem */
-				$typedEncodingItem = $encodingItem;
-				$mediaType->addEncoding($name, Encoding::fromArray($typedEncodingItem));
+				$mediaType->addEncoding($name, Encoding::fromArray($encodingItem)); // @phpstan-ignore argument.type
 			}
 		}
 

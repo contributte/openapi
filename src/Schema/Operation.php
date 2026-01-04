@@ -50,91 +50,64 @@ class Operation
 	{
 		$operation = new Operation();
 
-		/** @var bool|null $deprecated */
-		$deprecated = $data['deprecated'] ?? null;
-		if ($deprecated !== null) {
-			$operation->setDeprecated($deprecated);
+		if (isset($data['deprecated'])) {
+			$operation->setDeprecated($data['deprecated']);
 		}
 
-		/** @var string|null $operationId */
-		$operationId = $data['operationId'] ?? null;
-		$operation->setOperationId($operationId);
-		/** @var string[] $tags */
-		$tags = $data['tags'] ?? [];
-		$operation->setTags($tags);
-		/** @var string|null $summary */
-		$summary = $data['summary'] ?? null;
-		$operation->setSummary($summary);
-		/** @var string|null $description */
-		$description = $data['description'] ?? null;
-		$operation->setDescription($description);
+		$operation->setOperationId($data['operationId'] ?? null);
+		$operation->setTags($data['tags'] ?? []);
+		$operation->setSummary($data['summary'] ?? null);
+		$operation->setDescription($data['description'] ?? null);
 
-		/** @var array{url: string, description?: string}|null $externalDocs */
-		$externalDocs = $data['externalDocs'] ?? null;
-		if ($externalDocs !== null) {
-			$operation->setExternalDocs(ExternalDocumentation::fromArray($externalDocs));
+		if (isset($data['externalDocs'])) {
+			$operation->setExternalDocs(ExternalDocumentation::fromArray($data['externalDocs'])); // @phpstan-ignore argument.type
 		}
 
-		/** @var mixed[] $parameters */
-		$parameters = $data['parameters'] ?? [];
-		foreach ($parameters as $parameterData) {
-			/** @var mixed[] $parameterData */
+		foreach ($data['parameters'] ?? [] as $parameterData) {
+			if (!is_array($parameterData)) {
+				continue;
+			}
+
 			if (isset($parameterData['$ref'])) {
 				$operation->addParameter(Reference::fromArray($parameterData));
 
 				continue;
 			}
 
-			/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedParameterData */
-			$typedParameterData = $parameterData;
-			$parameter = Parameter::fromArray($typedParameterData);
+			$parameter = Parameter::fromArray($parameterData); // @phpstan-ignore argument.type
 
 			if ($operation->hasParameter($parameter)) {
 				$operation->mergeParameter($parameter);
 			} else {
-				$operation->addParameter(Parameter::fromArray($typedParameterData));
+				$operation->addParameter($parameter);
 			}
 		}
 
-		/** @var mixed[]|null $requestBody */
-		$requestBody = $data['requestBody'] ?? null;
-		if ($requestBody !== null) {
-			if (isset($requestBody['$ref'])) {
-				$operation->setRequestBody(Reference::fromArray($requestBody));
+		if (isset($data['requestBody'])) {
+			if (isset($data['requestBody']['$ref'])) {
+				$operation->setRequestBody(Reference::fromArray($data['requestBody']));
 			} else {
-				/** @var array{description?: string, required?: bool, content?: array<string, mixed[]>} $typedRequestBody */
-				$typedRequestBody = $requestBody;
-				$operation->setRequestBody(RequestBody::fromArray($typedRequestBody));
+				$operation->setRequestBody(RequestBody::fromArray($data['requestBody'])); // @phpstan-ignore argument.type
 			}
 		}
 
-		/** @var array<string, mixed>|null $responses */
-		$responses = $data['responses'] ?? null;
-		if ($responses !== null) {
-			$operation->setResponses(Responses::fromArray($responses));
+		if (isset($data['responses'])) {
+			$operation->setResponses(Responses::fromArray($data['responses']));
 		}
 
-		/** @var mixed[]|null $security */
-		$security = $data['security'] ?? null;
-		if ($security !== null && $security === []) {
+		if (isset($data['security']) && $data['security'] === []) {
 			$operation->setEmptySecurityRequirement();
 		}
 
-		foreach ($security ?? [] as $securityRequirementData) {
-			/** @var mixed[] $securityRequirementData */
-			$operation->addSecurityRequirement(SecurityRequirement::fromArray($securityRequirementData));
+		foreach ($data['security'] ?? [] as $securityRequirementData) {
+			$operation->addSecurityRequirement(SecurityRequirement::fromArray($securityRequirementData)); // @phpstan-ignore argument.type
 		}
 
-		/** @var mixed[] $servers */
-		$servers = $data['servers'] ?? [];
-		foreach ($servers as $server) {
-			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, description?: string, enum?: string[]}>} $server */
-			$operation->addServer(Server::fromArray($server));
+		foreach ($data['servers'] ?? [] as $server) {
+			$operation->addServer(Server::fromArray($server)); // @phpstan-ignore argument.type
 		}
 
-		/** @var array<string, mixed[]> $callbacks */
-		$callbacks = $data['callbacks'] ?? [];
-		foreach ($callbacks as $expression => $callback) {
+		foreach ($data['callbacks'] ?? [] as $expression => $callback) {
 			if (isset($callback['$ref'])) {
 				$operation->addCallback($expression, Reference::fromArray($callback));
 			} else {
@@ -196,9 +169,9 @@ class Operation
 		$originalParameter = $this->parameters[$this->getParameterKey($parameter)];
 
 		$merged = Helpers::merge($parameter->toArray(), $originalParameter->toArray());
-		/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $mergedArray */
+		/** @var array<mixed> $mergedArray */
 		$mergedArray = is_array($merged) ? $merged : [];
-		$parameter = Parameter::fromArray($mergedArray);
+		$parameter = Parameter::fromArray($mergedArray); // @phpstan-ignore argument.type
 
 		$this->parameters[$this->getParameterKey($parameter)] = $parameter;
 	}

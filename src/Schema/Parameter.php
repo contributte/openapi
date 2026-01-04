@@ -65,14 +65,8 @@ class Parameter
 	 */
 	public static function fromArray(array $data): Parameter
 	{
-		/** @var string $name */
-		$name = $data['name'];
-		/** @var string $in */
-		$in = $data['in'];
-		$parameter = new Parameter($name, $in);
-		/** @var string|null $description */
-		$description = $data['description'] ?? null;
-		$parameter->setDescription($description);
+		$parameter = new Parameter($data['name'], $data['in']);
+		$parameter->setDescription($data['description'] ?? null);
 		$parameter->setRequired($data['required'] ?? null);
 		$parameter->setDeprecated($data['deprecated'] ?? null);
 		$parameter->setAllowEmptyValue($data['allowEmptyValue'] ?? null);
@@ -80,12 +74,11 @@ class Parameter
 		$parameter->setExplode($data['explode'] ?? null);
 		$parameter->setAllowReserved($data['allowReserved'] ?? null);
 
-		$schema = $data['schema'] ?? null;
-		if ($schema !== null) {
-			if (isset($schema['$ref'])) {
-				$parameter->setSchema(Reference::fromArray($schema));
+		if (isset($data['schema'])) {
+			if (isset($data['schema']['$ref'])) {
+				$parameter->setSchema(Reference::fromArray($data['schema']));
 			} else {
-				$parameter->setSchema(Schema::fromArray($schema));
+				$parameter->setSchema(Schema::fromArray($data['schema']));
 			}
 		}
 

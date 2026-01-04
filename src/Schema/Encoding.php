@@ -25,19 +25,13 @@ class Encoding
 	{
 		$encoding = new Encoding();
 
-		/** @var string|null $contentType */
-		$contentType = $data['contentType'] ?? null;
-		$encoding->contentType = $contentType;
+		$encoding->contentType = $data['contentType'] ?? null;
 
-		/** @var array<string, mixed[]> $headers */
-		$headers = $data['headers'] ?? [];
-		foreach ($headers as $name => $header) {
+		foreach ($data['headers'] ?? [] as $name => $header) {
 			if (isset($header['$ref'])) {
 				$encoding->addHeader($name, Reference::fromArray($header));
 			} else {
-				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedHeader */
-				$typedHeader = $header;
-				$encoding->addHeader($name, Header::fromArray($typedHeader));
+				$encoding->addHeader($name, Header::fromArray($header)); // @phpstan-ignore argument.type
 			}
 		}
 

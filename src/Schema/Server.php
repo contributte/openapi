@@ -20,19 +20,14 @@ class Server
 	}
 
 	/**
-	 * @param array{url: string, description?: string, variables?: array<string, array{default: string, description?: string, enum?: string[]}>} $data
+	 * @param array{url: string, description?: string, variables?: array<string, array{default: string, enum?: string[], description?: string}>} $data
 	 */
 	public static function fromArray(array $data): Server
 	{
-		/** @var string $url */
-		$url = $data['url'];
-		$server = new Server($url);
-		/** @var string|null $description */
-		$description = $data['description'] ?? null;
-		$server->setDescription($description);
+		$server = new Server($data['url']);
+		$server->setDescription($data['description'] ?? null);
 
-		$variables = $data['variables'] ?? [];
-		foreach ($variables as $key => $variable) {
+		foreach ($data['variables'] ?? [] as $key => $variable) {
 			$server->addVariable($key, ServerVariable::fromArray($variable));
 		}
 

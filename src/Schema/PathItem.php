@@ -49,41 +49,29 @@ class PathItem
 		$pathItem = new PathItem();
 
 		foreach (self::$allowedOperations as $allowedOperation) {
-			/** @var mixed[]|null $operationData */
-			$operationData = $pathItemData[$allowedOperation] ?? null;
-			if ($operationData === null) {
+			if (!isset($pathItemData[$allowedOperation])) {
 				continue;
 			}
 
-			/** @var array{deprecated?: bool, operationId?: string, tags?: string[], summary?: string, description?: string, externalDocs?: mixed[], parameters?: mixed[], requestBody?: mixed[], responses?: mixed[], security?: mixed[], servers?: mixed[], callbacks?: array<string, mixed[]>} $typedOperationData */
-			$typedOperationData = $operationData;
-			$pathItem->setOperation($allowedOperation, Operation::fromArray($typedOperationData));
+			$pathItem->setOperation($allowedOperation, Operation::fromArray($pathItemData[$allowedOperation])); // @phpstan-ignore argument.type
 		}
 
-		/** @var string|null $summary */
-		$summary = $pathItemData['summary'] ?? null;
-		$pathItem->setSummary($summary);
-		/** @var string|null $description */
-		$description = $pathItemData['description'] ?? null;
-		$pathItem->setDescription($description);
+		$pathItem->setSummary($pathItemData['summary'] ?? null);
+		$pathItem->setDescription($pathItemData['description'] ?? null);
 
-		/** @var mixed[] $servers */
-		$servers = $pathItemData['servers'] ?? [];
-		foreach ($servers as $server) {
-			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, description?: string, enum?: string[]}>} $server */
-			$pathItem->addServer(Server::fromArray($server));
+		foreach ($pathItemData['servers'] ?? [] as $server) {
+			$pathItem->addServer(Server::fromArray($server)); // @phpstan-ignore argument.type
 		}
 
-		/** @var mixed[] $parameters */
-		$parameters = $pathItemData['parameters'] ?? [];
-		foreach ($parameters as $parameter) {
-			/** @var mixed[] $parameter */
+		foreach ($pathItemData['parameters'] ?? [] as $parameter) {
+			if (!is_array($parameter)) {
+				continue;
+			}
+
 			if (isset($parameter['$ref'])) {
 				$pathItem->addParameter(Reference::fromArray($parameter));
 			} else {
-				/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $typedParameter */
-				$typedParameter = $parameter;
-				$pathItem->addParameter(Parameter::fromArray($typedParameter));
+				$pathItem->addParameter(Parameter::fromArray($parameter)); // @phpstan-ignore argument.type
 			}
 		}
 

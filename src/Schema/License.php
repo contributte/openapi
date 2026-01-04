@@ -23,12 +23,8 @@ class License
 	 */
 	public static function fromArray(array $data): License
 	{
-		/** @var string $name */
-		$name = $data['name'];
-		$license = new License($name);
-		/** @var string|null $identifier */
-		$identifier = $data['identifier'] ?? null;
-		$license->setIdentifier($identifier);
+		$license = new License($data['name']);
+		$license->setIdentifier($data['identifier'] ?? null);
 		$license->setUrl($data['url'] ?? null);
 		$license->setVendorExtensions(VendorExtensions::fromArray($data));
 

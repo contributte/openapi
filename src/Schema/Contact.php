@@ -19,15 +19,9 @@ class Contact
 	public static function fromArray(array $data): Contact
 	{
 		$contact = new Contact();
-		/** @var string|null $name */
-		$name = $data['name'] ?? null;
-		$contact->setName($name);
-		/** @var string|null $url */
-		$url = $data['url'] ?? null;
-		$contact->setUrl($url);
-		/** @var string|null $email */
-		$email = $data['email'] ?? null;
-		$contact->setEmail($email);
+		$contact->setName($data['name'] ?? null);
+		$contact->setUrl($data['url'] ?? null);
+		$contact->setEmail($data['email'] ?? null);
 		$contact->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $contact;

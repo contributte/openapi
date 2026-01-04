@@ -21,12 +21,8 @@ class ExternalDocumentation
 	 */
 	public static function fromArray(array $data): ExternalDocumentation
 	{
-		/** @var string $url */
-		$url = $data['url'];
-		$externalDocumentation = new ExternalDocumentation($url);
-		/** @var string|null $description */
-		$description = $data['description'] ?? null;
-		$externalDocumentation->setDescription($description);
+		$externalDocumentation = new ExternalDocumentation($data['url']);
+		$externalDocumentation->setDescription($data['description'] ?? null);
 		$externalDocumentation->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $externalDocumentation;

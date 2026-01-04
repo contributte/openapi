@@ -32,20 +32,12 @@ class Info
 	 */
 	public static function fromArray(array $data): Info
 	{
-		/** @var string $title */
-		$title = $data['title'];
-		/** @var string $version */
-		$version = $data['version'];
-		$info = new Info($title, $version);
-		/** @var string|null $summary */
-		$summary = $data['summary'] ?? null;
-		$info->setSummary($summary);
+		$info = new Info($data['title'], $data['version']);
+		$info->setSummary($data['summary'] ?? null);
 		$info->setDescription($data['description'] ?? null);
 		$info->setTermsOfService($data['termsOfService'] ?? null);
-		$license = $data['license'] ?? null;
-		$info->setLicense($license !== null ? License::fromArray($license) : null);
-		$contact = $data['contact'] ?? null;
-		$info->setContact($contact !== null ? Contact::fromArray($contact) : null);
+		$info->setLicense(isset($data['license']) ? License::fromArray($data['license']) : null);
+		$info->setContact(isset($data['contact']) ? Contact::fromArray($data['contact']) : null);
 		$info->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $info;
