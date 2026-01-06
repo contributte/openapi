@@ -42,7 +42,7 @@ class PathItem
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param array{summary?: string, description?: string, get?: mixed[], put?: mixed[], post?: mixed[], delete?: mixed[], options?: mixed[], head?: mixed[], patch?: mixed[], trace?: mixed[], servers?: mixed[], parameters?: mixed[]} $pathItemData
+	 * @param mixed[] $pathItemData
 	 */
 	public static function fromArray(array $pathItemData): PathItem
 	{
@@ -53,14 +53,22 @@ class PathItem
 				continue;
 			}
 
-			$pathItem->setOperation($allowedOperation, Operation::fromArray($pathItemData[$allowedOperation])); // @phpstan-ignore argument.type
+			/** @var mixed[] $operationData */
+			$operationData = $pathItemData[$allowedOperation];
+			$pathItem->setOperation($allowedOperation, Operation::fromArray($operationData));
 		}
 
 		$pathItem->setSummary($pathItemData['summary'] ?? null);
 		$pathItem->setDescription($pathItemData['description'] ?? null);
 
 		foreach ($pathItemData['servers'] ?? [] as $server) {
-			$pathItem->addServer(Server::fromArray($server)); // @phpstan-ignore argument.type
+			if (!is_array($server)) {
+				continue;
+			}
+
+			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>} $serverData */
+			$serverData = $server;
+			$pathItem->addServer(Server::fromArray($serverData));
 		}
 
 		foreach ($pathItemData['parameters'] ?? [] as $parameter) {
@@ -71,7 +79,9 @@ class PathItem
 			if (isset($parameter['$ref'])) {
 				$pathItem->addParameter(Reference::fromArray($parameter));
 			} else {
-				$pathItem->addParameter(Parameter::fromArray($parameter)); // @phpstan-ignore argument.type
+				/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>} $param */
+				$param = $parameter;
+				$pathItem->addParameter(Parameter::fromArray($param));
 			}
 		}
 

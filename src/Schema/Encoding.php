@@ -19,19 +19,27 @@ class Encoding
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param array{contentType?: string, headers?: array<string, mixed[]>, style?: string, explode?: bool, allowReserved?: bool} $data
+	 * @param mixed[] $data
 	 */
 	public static function fromArray(array $data): self
 	{
 		$encoding = new Encoding();
 
-		$encoding->contentType = $data['contentType'] ?? null;
+		/** @var string|null $contentType */
+		$contentType = $data['contentType'] ?? null;
+		$encoding->contentType = $contentType;
 
 		foreach ($data['headers'] ?? [] as $name => $header) {
+			if (!is_array($header)) {
+				continue;
+			}
+
 			if (isset($header['$ref'])) {
 				$encoding->addHeader($name, Reference::fromArray($header));
 			} else {
-				$encoding->addHeader($name, Header::fromArray($header)); // @phpstan-ignore argument.type
+				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>} $headerData */
+				$headerData = $header;
+				$encoding->addHeader($name, Header::fromArray($headerData));
 			}
 		}
 

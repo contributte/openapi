@@ -25,7 +25,9 @@ class Paths
 			if (isset($pathItemData['$ref'])) {
 				$paths->setPathItem($path, Reference::fromArray($pathItemData));
 			} else {
-				$paths->setPathItem($path, PathItem::fromArray($pathItemData)); // @phpstan-ignore argument.type
+				/** @var mixed[] $pathItem */
+				$pathItem = $pathItemData;
+				$paths->setPathItem($path, PathItem::fromArray($pathItem));
 			}
 		}
 

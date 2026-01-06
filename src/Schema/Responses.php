@@ -25,7 +25,9 @@ class Responses
 			if (isset($responseData['$ref'])) {
 				$responses->setResponse($key, Reference::fromArray($responseData));
 			} else {
-				$responses->setResponse($key, Response::fromArray($responseData)); // @phpstan-ignore argument.type
+				/** @var mixed[] $response */
+				$response = $responseData;
+				$responses->setResponse($key, Response::fromArray($response));
 			}
 		}
 

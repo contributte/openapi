@@ -39,44 +39,74 @@ class OpenApi
 	}
 
 	/**
-	 * @param array{openapi: string, info: mixed[], jsonSchemaDialect?: string, servers?: mixed[], paths?: mixed[], webhooks?: array<string, mixed[]>, components?: mixed[], tags?: mixed[], externalDocs?: mixed[], security?: mixed[]} $data
+	 * @param mixed[] $data
 	 */
 	public static function fromArray(array $data): OpenApi
 	{
+		/** @var array{title: string, version: string, summary?: string, description?: string, termsOfService?: string, contact?: array{name?: string, url?: string, email?: string}, license?: array{name: string, identifier?: string, url?: string}} $info */
+		$info = $data['info'];
+		/** @var string $openapi */
+		$openapi = $data['openapi'];
 		$openApi = new OpenApi(
-			$data['openapi'],
-			Info::fromArray($data['info']), // @phpstan-ignore argument.type
+			$openapi,
+			Info::fromArray($info),
 		);
 
-		$openApi->jsonSchemaDialect = $data['jsonSchemaDialect'] ?? null;
+		/** @var string|null $jsonSchemaDialect */
+		$jsonSchemaDialect = $data['jsonSchemaDialect'] ?? null;
+		$openApi->jsonSchemaDialect = $jsonSchemaDialect;
 
 		foreach ($data['servers'] ?? [] as $serverData) {
-			$openApi->addServer(Server::fromArray($serverData)); // @phpstan-ignore argument.type
+			if (!is_array($serverData)) {
+				continue;
+			}
+
+			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>} $server */
+			$server = $serverData;
+			$openApi->addServer(Server::fromArray($server));
 		}
 
 		if (isset($data['paths'])) {
 			$openApi->paths = Paths::fromArray($data['paths']);
 		}
 
-		foreach ($data['webhooks'] ?? [] as $webhookId => $webhookData) {
-			$webhook = isset($webhookData['$ref']) ? Reference::fromArray($webhookData) : PathItem::fromArray($webhookData); // @phpstan-ignore argument.type
+		/** @var array<string, mixed[]> $webhooks */
+		$webhooks = $data['webhooks'] ?? [];
+		foreach ($webhooks as $webhookId => $webhookData) {
+			$webhook = isset($webhookData['$ref']) ? Reference::fromArray($webhookData) : PathItem::fromArray($webhookData);
 			$openApi->webhooks[$webhookId] = $webhook;
 		}
 
 		if (isset($data['components'])) {
-			$openApi->setComponents(Components::fromArray($data['components'])); // @phpstan-ignore argument.type
+			/** @var mixed[] $components */
+			$components = $data['components'];
+			$openApi->setComponents(Components::fromArray($components));
 		}
 
 		foreach ($data['tags'] ?? [] as $tagData) {
-			$openApi->addTag(Tag::fromArray($tagData)); // @phpstan-ignore argument.type
+			if (!is_array($tagData)) {
+				continue;
+			}
+
+			/** @var array{name: string, description?: string, externalDocs?: array{description?: string, url: string}} $tag */
+			$tag = $tagData;
+			$openApi->addTag(Tag::fromArray($tag));
 		}
 
 		if (isset($data['externalDocs'])) {
-			$openApi->externalDocs = ExternalDocumentation::fromArray($data['externalDocs']); // @phpstan-ignore argument.type
+			/** @var array{description?: string, url: string} $externalDocs */
+			$externalDocs = $data['externalDocs'];
+			$openApi->externalDocs = ExternalDocumentation::fromArray($externalDocs);
 		}
 
 		foreach ($data['security'] ?? [] as $securityItem) {
-			$openApi->addSecurityRequirement(SecurityRequirement::fromArray($securityItem)); // @phpstan-ignore argument.type
+			if (!is_array($securityItem)) {
+				continue;
+			}
+
+			/** @var array<string, array<string>> $security */
+			$security = $securityItem;
+			$openApi->addSecurityRequirement(SecurityRequirement::fromArray($security));
 		}
 
 		$openApi->setVendorExtensions(VendorExtensions::fromArray($data));

@@ -24,32 +24,48 @@ class Response
 	}
 
 	/**
-	 * @param array{description: string, headers?: array<string, mixed[]>, content?: array<string, mixed[]>, links?: array<string, mixed[]>} $data
+	 * @param mixed[] $data
 	 */
 	public static function fromArray(array $data): Response
 	{
-		$response = new Response($data['description']);
+		/** @var string $description */
+		$description = $data['description'];
+		$response = new Response($description);
 
 		foreach ($data['headers'] ?? [] as $key => $headerData) {
+			if (!is_array($headerData)) {
+				continue;
+			}
+
 			if (isset($headerData['$ref'])) {
 				$response->setHeader($key, Reference::fromArray($headerData));
 			} else {
-				$response->setHeader($key, Header::fromArray($headerData)); // @phpstan-ignore argument.type
+				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>} $header */
+				$header = $headerData;
+				$response->setHeader($key, Header::fromArray($header));
 			}
 		}
 
 		if (isset($data['content'])) {
 			$response->content = [];
-			foreach ($data['content'] as $key => $contentData) {
-				$response->setContent($key, MediaType::fromArray($contentData)); // @phpstan-ignore argument.type
+			/** @var array<string, mixed[]> $content */
+			$content = $data['content'];
+			foreach ($content as $key => $contentData) {
+				$response->setContent($key, MediaType::fromArray($contentData));
 			}
 		}
 
 		foreach ($data['links'] ?? [] as $key => $linkData) {
+			if (!is_array($linkData)) {
+				continue;
+			}
+
 			if (isset($linkData['$ref'])) {
 				$response->setLink($key, Reference::fromArray($linkData));
 			} else {
-				$response->setLink($key, Link::fromArray($linkData)); // @phpstan-ignore argument.type
+				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>}} $link */
+				$link = $linkData;
+				$response->setLink($key, Link::fromArray($link));
 			}
 		}
 

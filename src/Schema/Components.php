@@ -38,13 +38,15 @@ class Components
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param array{schemas?: array<string, mixed[]>, responses?: array<string, mixed[]>, parameters?: array<string, mixed[]>, examples?: array<string, mixed[]>, requestBodies?: array<string, mixed[]>, headers?: array<string, mixed[]>, securitySchemes?: array<string, mixed[]>, callbacks?: array<string, mixed[]>, links?: array<string, mixed[]>, pathItems?: array<string, mixed[]>} $data
+	 * @param mixed[] $data
 	 */
 	public static function fromArray(array $data): Components
 	{
 		$components = new Components();
 
-		foreach ($data['schemas'] ?? [] as $schemaKey => $schemaData) {
+		/** @var array<string, mixed[]> $schemas */
+		$schemas = $data['schemas'] ?? [];
+		foreach ($schemas as $schemaKey => $schemaData) {
 			if (isset($schemaData['$ref'])) {
 				$components->setSchema($schemaKey, Reference::fromArray($schemaData));
 			} else {
@@ -52,51 +54,75 @@ class Components
 			}
 		}
 
-		foreach ($data['responses'] ?? [] as $responseKey => $responseData) {
+		/** @var array<string, mixed[]> $responses */
+		$responses = $data['responses'] ?? [];
+		foreach ($responses as $responseKey => $responseData) {
 			if (isset($responseData['$ref'])) {
 				$components->setResponse($responseKey, Reference::fromArray($responseData));
 			} else {
-				$components->setResponse($responseKey, Response::fromArray($responseData)); // @phpstan-ignore argument.type
+				$components->setResponse($responseKey, Response::fromArray($responseData));
 			}
 		}
 
 		foreach ($data['parameters'] ?? [] as $parameterKey => $parameterData) {
+			if (!is_array($parameterData)) {
+				continue;
+			}
+
 			if (isset($parameterData['$ref'])) {
 				$components->setParameter($parameterKey, Reference::fromArray($parameterData));
 			} else {
-				$components->setParameter($parameterKey, Parameter::fromArray($parameterData)); // @phpstan-ignore argument.type
+				/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>} $param */
+				$param = $parameterData;
+				$components->setParameter($parameterKey, Parameter::fromArray($param));
 			}
 		}
 
 		foreach ($data['examples'] ?? [] as $exampleKey => $exampleData) {
+			if (!is_array($exampleData)) {
+				continue;
+			}
+
 			if (isset($exampleData['$ref'])) {
 				$components->setExample($exampleKey, Reference::fromArray($exampleData));
 			} else {
-				$components->setExample($exampleKey, Example::fromArray($exampleData)); // @phpstan-ignore argument.type
+				/** @var array{summary?: string, description?: string, value?: mixed, externalValue?: string} $example */
+				$example = $exampleData;
+				$components->setExample($exampleKey, Example::fromArray($example));
 			}
 		}
 
-		foreach ($data['requestBodies'] ?? [] as $requestBodyKey => $requestBodyData) {
+		/** @var array<string, mixed[]> $requestBodies */
+		$requestBodies = $data['requestBodies'] ?? [];
+		foreach ($requestBodies as $requestBodyKey => $requestBodyData) {
 			if (isset($requestBodyData['$ref'])) {
 				$components->setRequestBody($requestBodyKey, Reference::fromArray($requestBodyData));
 			} else {
-				$components->setRequestBody($requestBodyKey, RequestBody::fromArray($requestBodyData)); // @phpstan-ignore argument.type
+				$components->setRequestBody($requestBodyKey, RequestBody::fromArray($requestBodyData));
 			}
 		}
 
 		foreach ($data['headers'] ?? [] as $headerKey => $headerData) {
+			if (!is_array($headerData)) {
+				continue;
+			}
+
 			if (isset($headerData['$ref'])) {
 				$components->setHeader($headerKey, Reference::fromArray($headerData));
 			} else {
-				$components->setHeader($headerKey, Header::fromArray($headerData)); // @phpstan-ignore argument.type
+				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>} $header */
+				$header = $headerData;
+				$components->setHeader($headerKey, Header::fromArray($header));
 			}
 		}
 
-		foreach ($data['securitySchemes'] ?? [] as $securitySchemeKey => $securitySchemeData) {
+		/** @var array<string, mixed[]> $securitySchemes */
+		$securitySchemes = $data['securitySchemes'] ?? [];
+		foreach ($securitySchemes as $securitySchemeKey => $securitySchemeData) {
 			if (isset($securitySchemeData['$ref'])) {
 				$components->setSecurityScheme($securitySchemeKey, Reference::fromArray($securitySchemeData));
 			} else {
-				$components->setSecurityScheme($securitySchemeKey, SecurityScheme::fromArray($securitySchemeData)); // @phpstan-ignore argument.type
+				$components->setSecurityScheme($securitySchemeKey, SecurityScheme::fromArray($securitySchemeData));
 			}
 		}
 
@@ -109,18 +135,26 @@ class Components
 		}
 
 		foreach ($data['links'] ?? [] as $linkKey => $linkData) {
+			if (!is_array($linkData)) {
+				continue;
+			}
+
 			if (isset($linkData['$ref'])) {
 				$components->setLink($linkKey, Reference::fromArray($linkData));
 			} else {
-				$components->setLink($linkKey, Link::fromArray($linkData)); // @phpstan-ignore argument.type
+				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>}} $link */
+				$link = $linkData;
+				$components->setLink($linkKey, Link::fromArray($link));
 			}
 		}
 
-		foreach ($data['pathItems'] ?? [] as $pathItemKey => $pathItemData) {
+		/** @var array<string, mixed[]> $pathItems */
+		$pathItems = $data['pathItems'] ?? [];
+		foreach ($pathItems as $pathItemKey => $pathItemData) {
 			if (isset($pathItemData['$ref'])) {
 				$components->setPathItem($pathItemKey, Reference::fromArray($pathItemData));
 			} else {
-				$components->setPathItem($pathItemKey, PathItem::fromArray($pathItemData)); // @phpstan-ignore argument.type
+				$components->setPathItem($pathItemKey, PathItem::fromArray($pathItemData));
 			}
 		}
 
