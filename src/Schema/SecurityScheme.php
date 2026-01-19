@@ -61,7 +61,7 @@ class SecurityScheme
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{type: string, description?: string, name?: string, in?: string, scheme?: string, bearerFormat?: string, flows?: array<string, mixed[]>, openIdConnectUrl?: string} $data
 	 */
 	public static function fromArray(array $data): SecurityScheme
 	{

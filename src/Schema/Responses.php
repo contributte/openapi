@@ -11,21 +11,17 @@ class Responses
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param array<string, mixed[]|mixed> $data
+	 * @param array<string, mixed[]> $data
 	 */
 	public static function fromArray(array $data): Responses
 	{
 		$responses = new Responses();
 
 		foreach ($data as $key => $responseData) {
-			if (!is_array($responseData)) {
-				continue;
-			}
-
 			if (isset($responseData['$ref'])) {
 				$responses->setResponse($key, Reference::fromArray($responseData));
 			} else {
-				/** @var mixed[] $response */
+				/** @var array{description: string, headers?: array<string, mixed[]>, content?: array<string, mixed[]>, links?: array<string, mixed[]>} $response */
 				$response = $responseData;
 				$responses->setResponse($key, Response::fromArray($response));
 			}

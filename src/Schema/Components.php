@@ -38,7 +38,7 @@ class Components
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{schemas?: array<string, mixed[]>, responses?: array<string, mixed[]>, parameters?: array<string, mixed[]>, examples?: array<string, mixed[]>, requestBodies?: array<string, mixed[]>, headers?: array<string, mixed[]>, securitySchemes?: array<string, mixed[]>, links?: array<string, mixed[]>, callbacks?: array<string, mixed[]>, pathItems?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): Components
 	{
@@ -60,15 +60,13 @@ class Components
 			if (isset($responseData['$ref'])) {
 				$components->setResponse($responseKey, Reference::fromArray($responseData));
 			} else {
-				$components->setResponse($responseKey, Response::fromArray($responseData));
+				/** @var array{description: string, headers?: array<string, mixed[]>, content?: array<string, mixed[]>, links?: array<string, mixed[]>} $response */
+				$response = $responseData;
+				$components->setResponse($responseKey, Response::fromArray($response));
 			}
 		}
 
 		foreach ($data['parameters'] ?? [] as $parameterKey => $parameterData) {
-			if (!is_array($parameterData)) {
-				continue;
-			}
-
 			if (isset($parameterData['$ref'])) {
 				$components->setParameter($parameterKey, Reference::fromArray($parameterData));
 			} else {
@@ -79,10 +77,6 @@ class Components
 		}
 
 		foreach ($data['examples'] ?? [] as $exampleKey => $exampleData) {
-			if (!is_array($exampleData)) {
-				continue;
-			}
-
 			if (isset($exampleData['$ref'])) {
 				$components->setExample($exampleKey, Reference::fromArray($exampleData));
 			} else {
@@ -98,15 +92,13 @@ class Components
 			if (isset($requestBodyData['$ref'])) {
 				$components->setRequestBody($requestBodyKey, Reference::fromArray($requestBodyData));
 			} else {
-				$components->setRequestBody($requestBodyKey, RequestBody::fromArray($requestBodyData));
+				/** @var array{description?: string, content?: array<string, mixed[]>, required?: bool} $requestBody */
+				$requestBody = $requestBodyData;
+				$components->setRequestBody($requestBodyKey, RequestBody::fromArray($requestBody));
 			}
 		}
 
 		foreach ($data['headers'] ?? [] as $headerKey => $headerData) {
-			if (!is_array($headerData)) {
-				continue;
-			}
-
 			if (isset($headerData['$ref'])) {
 				$components->setHeader($headerKey, Reference::fromArray($headerData));
 			} else {
@@ -122,7 +114,9 @@ class Components
 			if (isset($securitySchemeData['$ref'])) {
 				$components->setSecurityScheme($securitySchemeKey, Reference::fromArray($securitySchemeData));
 			} else {
-				$components->setSecurityScheme($securitySchemeKey, SecurityScheme::fromArray($securitySchemeData));
+				/** @var array{type: string, description?: string, name?: string, in?: string, scheme?: string, bearerFormat?: string, flows?: array<string, mixed[]>, openIdConnectUrl?: string} $securityScheme */
+				$securityScheme = $securitySchemeData;
+				$components->setSecurityScheme($securitySchemeKey, SecurityScheme::fromArray($securityScheme));
 			}
 		}
 
@@ -135,14 +129,10 @@ class Components
 		}
 
 		foreach ($data['links'] ?? [] as $linkKey => $linkData) {
-			if (!is_array($linkData)) {
-				continue;
-			}
-
 			if (isset($linkData['$ref'])) {
 				$components->setLink($linkKey, Reference::fromArray($linkData));
 			} else {
-				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>}} $link */
+				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: mixed[]} $link */
 				$link = $linkData;
 				$components->setLink($linkKey, Link::fromArray($link));
 			}
@@ -154,7 +144,9 @@ class Components
 			if (isset($pathItemData['$ref'])) {
 				$components->setPathItem($pathItemKey, Reference::fromArray($pathItemData));
 			} else {
-				$components->setPathItem($pathItemKey, PathItem::fromArray($pathItemData));
+				/** @var array{get?: mixed[], put?: mixed[], post?: mixed[], delete?: mixed[], options?: mixed[], head?: mixed[], patch?: mixed[], trace?: mixed[], summary?: string, description?: string, servers?: array<mixed[]>, parameters?: array<mixed[]>} $pathItem */
+				$pathItem = $pathItemData;
+				$components->setPathItem($pathItemKey, PathItem::fromArray($pathItem));
 			}
 		}
 

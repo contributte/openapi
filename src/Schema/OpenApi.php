@@ -39,11 +39,11 @@ class OpenApi
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{openapi: string, info: mixed[], jsonSchemaDialect?: string, servers?: array<mixed[]>, paths?: array<string, mixed[]>, webhooks?: array<string, mixed[]>, components?: mixed[], security?: array<array<string, array<string>>>, tags?: array<mixed[]>, externalDocs?: mixed[]} $data
 	 */
 	public static function fromArray(array $data): OpenApi
 	{
-		/** @var array{title: string, version: string, summary?: string, description?: string, termsOfService?: string, contact?: array{name?: string, url?: string, email?: string}, license?: array{name: string, identifier?: string, url?: string}} $info */
+		/** @var array{title: string, version: string, summary?: string, description?: string, termsOfService?: string, license?: mixed[], contact?: mixed[]} $info */
 		$info = $data['info'];
 		/** @var string $openapi */
 		$openapi = $data['openapi'];
@@ -57,11 +57,7 @@ class OpenApi
 		$openApi->jsonSchemaDialect = $jsonSchemaDialect;
 
 		foreach ($data['servers'] ?? [] as $serverData) {
-			if (!is_array($serverData)) {
-				continue;
-			}
-
-			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>} $server */
+			/** @var array{url: string, description?: string, variables?: array<string, mixed[]>} $server */
 			$server = $serverData;
 			$openApi->addServer(Server::fromArray($server));
 		}
@@ -73,37 +69,34 @@ class OpenApi
 		/** @var array<string, mixed[]> $webhooks */
 		$webhooks = $data['webhooks'] ?? [];
 		foreach ($webhooks as $webhookId => $webhookData) {
-			$webhook = isset($webhookData['$ref']) ? Reference::fromArray($webhookData) : PathItem::fromArray($webhookData);
-			$openApi->webhooks[$webhookId] = $webhook;
+			if (isset($webhookData['$ref'])) {
+				$openApi->webhooks[$webhookId] = Reference::fromArray($webhookData);
+			} else {
+				/** @var array{get?: mixed[], put?: mixed[], post?: mixed[], delete?: mixed[], options?: mixed[], head?: mixed[], patch?: mixed[], trace?: mixed[], summary?: string, description?: string, servers?: array<mixed[]>, parameters?: array<mixed[]>} $webhook */
+				$webhook = $webhookData;
+				$openApi->webhooks[$webhookId] = PathItem::fromArray($webhook);
+			}
 		}
 
 		if (isset($data['components'])) {
-			/** @var mixed[] $components */
+			/** @var array{schemas?: array<string, mixed[]>, responses?: array<string, mixed[]>, parameters?: array<string, mixed[]>, examples?: array<string, mixed[]>, requestBodies?: array<string, mixed[]>, headers?: array<string, mixed[]>, securitySchemes?: array<string, mixed[]>, links?: array<string, mixed[]>, callbacks?: array<string, mixed[]>, pathItems?: array<string, mixed[]>} $components */
 			$components = $data['components'];
 			$openApi->setComponents(Components::fromArray($components));
 		}
 
 		foreach ($data['tags'] ?? [] as $tagData) {
-			if (!is_array($tagData)) {
-				continue;
-			}
-
-			/** @var array{name: string, description?: string, externalDocs?: array{description?: string, url: string}} $tag */
+			/** @var array{name: string, description?: string, externalDocs?: array{url: string, description?: string}} $tag */
 			$tag = $tagData;
 			$openApi->addTag(Tag::fromArray($tag));
 		}
 
 		if (isset($data['externalDocs'])) {
-			/** @var array{description?: string, url: string} $externalDocs */
+			/** @var array{url: string, description?: string} $externalDocs */
 			$externalDocs = $data['externalDocs'];
 			$openApi->externalDocs = ExternalDocumentation::fromArray($externalDocs);
 		}
 
 		foreach ($data['security'] ?? [] as $securityItem) {
-			if (!is_array($securityItem)) {
-				continue;
-			}
-
 			/** @var array<string, array<string>> $security */
 			$security = $securityItem;
 			$openApi->addSecurityRequirement(SecurityRequirement::fromArray($security));

@@ -42,7 +42,7 @@ class PathItem
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $pathItemData
+	 * @param array{get?: mixed[], put?: mixed[], post?: mixed[], delete?: mixed[], options?: mixed[], head?: mixed[], patch?: mixed[], trace?: mixed[], summary?: string, description?: string, servers?: array<mixed[]>, parameters?: array<mixed[]>} $pathItemData
 	 */
 	public static function fromArray(array $pathItemData): PathItem
 	{
@@ -53,7 +53,7 @@ class PathItem
 				continue;
 			}
 
-			/** @var mixed[] $operationData */
+			/** @var array{tags?: array<string>, summary?: string, description?: string, externalDocs?: mixed[], operationId?: string, parameters?: array<mixed[]>, requestBody?: mixed[], responses?: array<string, mixed[]>, callbacks?: array<string, mixed[]>, deprecated?: bool, security?: array<array<string, array<string>>>, servers?: array<mixed[]>} $operationData */
 			$operationData = $pathItemData[$allowedOperation];
 			$pathItem->setOperation($allowedOperation, Operation::fromArray($operationData));
 		}
@@ -62,24 +62,16 @@ class PathItem
 		$pathItem->setDescription($pathItemData['description'] ?? null);
 
 		foreach ($pathItemData['servers'] ?? [] as $server) {
-			if (!is_array($server)) {
-				continue;
-			}
-
-			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>} $serverData */
+			/** @var array{url: string, description?: string, variables?: array<string, mixed[]>} $serverData */
 			$serverData = $server;
 			$pathItem->addServer(Server::fromArray($serverData));
 		}
 
 		foreach ($pathItemData['parameters'] ?? [] as $parameter) {
-			if (!is_array($parameter)) {
-				continue;
-			}
-
 			if (isset($parameter['$ref'])) {
 				$pathItem->addParameter(Reference::fromArray($parameter));
 			} else {
-				/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>} $param */
+				/** @var array{name: string, in: string, description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $param */
 				$param = $parameter;
 				$pathItem->addParameter(Parameter::fromArray($param));
 			}

@@ -44,7 +44,7 @@ class Operation
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{tags?: array<string>, summary?: string, description?: string, externalDocs?: mixed[], operationId?: string, parameters?: array<mixed[]>, requestBody?: mixed[], responses?: array<string, mixed[]>, callbacks?: array<string, mixed[]>, deprecated?: bool, security?: array<array<string, array<string>>>, servers?: array<mixed[]>} $data
 	 */
 	public static function fromArray(array $data): Operation
 	{
@@ -62,16 +62,12 @@ class Operation
 		$operation->setDescription($data['description'] ?? null);
 
 		if (isset($data['externalDocs'])) {
-			/** @var array{description?: string, url: string} $externalDocs */
+			/** @var array{url: string, description?: string} $externalDocs */
 			$externalDocs = $data['externalDocs'];
 			$operation->setExternalDocs(ExternalDocumentation::fromArray($externalDocs));
 		}
 
 		foreach ($data['parameters'] ?? [] as $parameterData) {
-			if (!is_array($parameterData)) {
-				continue;
-			}
-
 			if (isset($parameterData['$ref'])) {
 				$operation->addParameter(Reference::fromArray($parameterData));
 
@@ -93,14 +89,16 @@ class Operation
 			if (isset($data['requestBody']['$ref'])) {
 				$operation->setRequestBody(Reference::fromArray($data['requestBody']));
 			} else {
-				/** @var mixed[] $requestBody */
+				/** @var array{description?: string, content?: array<string, mixed[]>, required?: bool} $requestBody */
 				$requestBody = $data['requestBody'];
 				$operation->setRequestBody(RequestBody::fromArray($requestBody));
 			}
 		}
 
 		if (isset($data['responses'])) {
-			$operation->setResponses(Responses::fromArray($data['responses']));
+			/** @var array<string, mixed[]> $responses */
+			$responses = $data['responses'];
+			$operation->setResponses(Responses::fromArray($responses));
 		}
 
 		if (isset($data['security']) && $data['security'] === []) {
@@ -108,21 +106,13 @@ class Operation
 		}
 
 		foreach ($data['security'] ?? [] as $securityRequirementData) {
-			if (!is_array($securityRequirementData)) {
-				continue;
-			}
-
 			/** @var array<string, array<string>> $security */
 			$security = $securityRequirementData;
 			$operation->addSecurityRequirement(SecurityRequirement::fromArray($security));
 		}
 
 		foreach ($data['servers'] ?? [] as $server) {
-			if (!is_array($server)) {
-				continue;
-			}
-
-			/** @var array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>} $serverData */
+			/** @var array{url: string, description?: string, variables?: array<string, mixed[]>} $serverData */
 			$serverData = $server;
 			$operation->addServer(Server::fromArray($serverData));
 		}

@@ -24,7 +24,7 @@ class Response
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{description: string, headers?: array<string, mixed[]>, content?: array<string, mixed[]>, links?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): Response
 	{
@@ -33,14 +33,10 @@ class Response
 		$response = new Response($description);
 
 		foreach ($data['headers'] ?? [] as $key => $headerData) {
-			if (!is_array($headerData)) {
-				continue;
-			}
-
 			if (isset($headerData['$ref'])) {
 				$response->setHeader($key, Reference::fromArray($headerData));
 			} else {
-				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>} $header */
+				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $header */
 				$header = $headerData;
 				$response->setHeader($key, Header::fromArray($header));
 			}
@@ -51,19 +47,17 @@ class Response
 			/** @var array<string, mixed[]> $content */
 			$content = $data['content'];
 			foreach ($content as $key => $contentData) {
-				$response->setContent($key, MediaType::fromArray($contentData));
+				/** @var array{schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>, encoding?: array<string, mixed[]>} $mediaType */
+				$mediaType = $contentData;
+				$response->setContent($key, MediaType::fromArray($mediaType));
 			}
 		}
 
 		foreach ($data['links'] ?? [] as $key => $linkData) {
-			if (!is_array($linkData)) {
-				continue;
-			}
-
 			if (isset($linkData['$ref'])) {
 				$response->setLink($key, Reference::fromArray($linkData));
 			} else {
-				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: array{url: string, description?: string, variables?: array<string, array{default: string, enum?: array<string>, description?: string}>}} $link */
+				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: mixed[]} $link */
 				$link = $linkData;
 				$response->setLink($key, Link::fromArray($link));
 			}

@@ -19,7 +19,7 @@ class Encoding
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{contentType?: string, headers?: array<string, mixed[]>, style?: string, explode?: bool, allowReserved?: bool} $data
 	 */
 	public static function fromArray(array $data): self
 	{
@@ -30,10 +30,6 @@ class Encoding
 		$encoding->contentType = $contentType;
 
 		foreach ($data['headers'] ?? [] as $name => $header) {
-			if (!is_array($header)) {
-				continue;
-			}
-
 			if (isset($header['$ref'])) {
 				$encoding->addHeader($name, Reference::fromArray($header));
 			} else {

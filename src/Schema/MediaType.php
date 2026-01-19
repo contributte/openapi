@@ -18,7 +18,7 @@ class MediaType
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>, encoding?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): MediaType
 	{
@@ -37,16 +37,12 @@ class MediaType
 		$mediaType->setExample($data['example'] ?? null);
 
 		foreach ($data['examples'] ?? [] as $name => $example) {
-			if (!is_array($example)) {
-				continue;
-			}
-
 			if (isset($example['$ref'])) {
 				$mediaType->addExample($name, Reference::fromArray($example));
 			} else {
-				/** @var array{summary?: string, description?: string, value?: mixed, externalValue?: string} $exampleData */
-				$exampleData = $example;
-				$mediaType->addExample($name, Example::fromArray($exampleData));
+				/** @var array{summary?: string, description?: string, value?: mixed, externalValue?: string} $exampleDataTyped */
+				$exampleDataTyped = $example;
+				$mediaType->addExample($name, Example::fromArray($exampleDataTyped));
 			}
 		}
 
@@ -56,7 +52,9 @@ class MediaType
 			if (isset($encodingItem['$ref'])) {
 				$mediaType->addEncoding($name, Reference::fromArray($encodingItem));
 			} else {
-				$mediaType->addEncoding($name, Encoding::fromArray($encodingItem));
+				/** @var array{contentType?: string, headers?: array<string, mixed[]>, style?: string, explode?: bool, allowReserved?: bool} $encodingData */
+				$encodingData = $encodingItem;
+				$mediaType->addEncoding($name, Encoding::fromArray($encodingData));
 			}
 		}
 
