@@ -20,7 +20,7 @@ class ServerVariable
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{default: string, enum?: array<string>, description?: string} $data
 	 */
 	public static function fromArray(array $data): ServerVariable
 	{

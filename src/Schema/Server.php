@@ -20,7 +20,7 @@ class Server
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{url: string, description?: string, variables?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): Server
 	{
@@ -28,7 +28,9 @@ class Server
 		$server->setDescription($data['description'] ?? null);
 
 		foreach ($data['variables'] ?? [] as $key => $variable) {
-			$server->addVariable($key, ServerVariable::fromArray($variable));
+			/** @var array{default: string, enum?: array<string>, description?: string} $variableData */
+			$variableData = $variable;
+			$server->addVariable($key, ServerVariable::fromArray($variableData));
 		}
 
 		$server->setVendorExtensions(VendorExtensions::fromArray($data));

@@ -18,37 +18,43 @@ class MediaType
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>, encoding?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): MediaType
 	{
 		$mediaType = new MediaType();
 
 		if (isset($data['schema'])) {
-			if (isset($data['schema']['$ref'])) {
-				$mediaType->setSchema(Reference::fromArray($data['schema']));
+			/** @var mixed[] $schema */
+			$schema = $data['schema'];
+			if (isset($schema['$ref'])) {
+				$mediaType->setSchema(Reference::fromArray($schema));
 			} else {
-				$mediaType->setSchema(Schema::fromArray($data['schema']));
+				$mediaType->setSchema(Schema::fromArray($schema));
 			}
 		}
 
 		$mediaType->setExample($data['example'] ?? null);
 
-		if (isset($data['examples'])) {
-			foreach ($data['examples'] as $name => $example) {
-				if (isset($example['$ref'])) {
-					$mediaType->addExample($name, Reference::fromArray($example));
-				} else {
-					$mediaType->addExample($name, Example::fromArray($example));
-				}
+		foreach ($data['examples'] ?? [] as $name => $example) {
+			if (isset($example['$ref'])) {
+				$mediaType->addExample($name, Reference::fromArray($example));
+			} else {
+				/** @var array{summary?: string, description?: string, value?: mixed, externalValue?: string} $exampleDataTyped */
+				$exampleDataTyped = $example;
+				$mediaType->addExample($name, Example::fromArray($exampleDataTyped));
 			}
 		}
 
-		foreach ($data['encoding'] ?? [] as $name => $encoding) {
-			if (isset($encoding['$ref'])) {
-				$mediaType->addEncoding($name, Reference::fromArray($encoding));
+		/** @var array<string, mixed[]> $encoding */
+		$encoding = $data['encoding'] ?? [];
+		foreach ($encoding as $name => $encodingItem) {
+			if (isset($encodingItem['$ref'])) {
+				$mediaType->addEncoding($name, Reference::fromArray($encodingItem));
 			} else {
-				$mediaType->addEncoding($name, Encoding::fromArray($encoding));
+				/** @var array{contentType?: string, headers?: array<string, mixed[]>, style?: string, explode?: bool, allowReserved?: bool} $encodingData */
+				$encodingData = $encodingItem;
+				$mediaType->addEncoding($name, Encoding::fromArray($encodingData));
 			}
 		}
 

@@ -17,13 +17,19 @@ class Reference
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array<string, mixed> $data
 	 */
 	public static function fromArray(array $data): Reference
 	{
-		$reference = new Reference($data['$ref']);
-		$reference->setSummary($data['summary'] ?? null);
-		$reference->setDescription($data['description'] ?? null);
+		/** @var string $ref */
+		$ref = $data['$ref'];
+		$reference = new Reference($ref);
+		/** @var string|null $summary */
+		$summary = $data['summary'] ?? null;
+		$reference->setSummary($summary);
+		/** @var string|null $description */
+		$description = $data['description'] ?? null;
+		$reference->setDescription($description);
 
 		return $reference;
 	}

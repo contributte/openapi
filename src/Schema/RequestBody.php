@@ -15,16 +15,22 @@ class RequestBody
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{description?: string, content?: array<string, mixed[]>, required?: bool} $data
 	 */
 	public static function fromArray(array $data): RequestBody
 	{
 		$requestBody = new RequestBody();
-		$requestBody->setRequired($data['required'] ?? false);
+		/** @var bool $required */
+		$required = $data['required'] ?? false;
+		$requestBody->setRequired($required);
 		$requestBody->setDescription($data['description'] ?? null);
 
-		foreach ($data['content'] ?? [] as $key => $mediaType) {
-			$requestBody->addMediaType($key, MediaType::fromArray($mediaType));
+		/** @var array<string, mixed[]> $content */
+		$content = $data['content'] ?? [];
+		foreach ($content as $key => $mediaType) {
+			/** @var array{schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>, encoding?: array<string, mixed[]>} $mediaTypeData */
+			$mediaTypeData = $mediaType;
+			$requestBody->addMediaType($key, MediaType::fromArray($mediaTypeData));
 		}
 
 		$requestBody->setVendorExtensions(VendorExtensions::fromArray($data));

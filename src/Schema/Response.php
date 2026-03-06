@@ -24,33 +24,42 @@ class Response
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{description: string, headers?: array<string, mixed[]>, content?: array<string, mixed[]>, links?: array<string, mixed[]>} $data
 	 */
 	public static function fromArray(array $data): Response
 	{
-		$response = new Response($data['description']);
+		/** @var string $description */
+		$description = $data['description'];
+		$response = new Response($description);
 
 		foreach ($data['headers'] ?? [] as $key => $headerData) {
 			if (isset($headerData['$ref'])) {
 				$response->setHeader($key, Reference::fromArray($headerData));
 			} else {
-				$response->setHeader($key, Header::fromArray($headerData));
+				/** @var array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $header */
+				$header = $headerData;
+				$response->setHeader($key, Header::fromArray($header));
 			}
 		}
 
 		if (isset($data['content'])) {
 			$response->content = [];
-		}
-
-		foreach ($data['content'] ?? [] as $key => $contentData) {
-			$response->setContent($key, MediaType::fromArray($contentData));
+			/** @var array<string, mixed[]> $content */
+			$content = $data['content'];
+			foreach ($content as $key => $contentData) {
+				/** @var array{schema?: mixed[], example?: mixed, examples?: array<string, mixed[]>, encoding?: array<string, mixed[]>} $mediaType */
+				$mediaType = $contentData;
+				$response->setContent($key, MediaType::fromArray($mediaType));
+			}
 		}
 
 		foreach ($data['links'] ?? [] as $key => $linkData) {
 			if (isset($linkData['$ref'])) {
 				$response->setLink($key, Reference::fromArray($linkData));
 			} else {
-				$response->setLink($key, Link::fromArray($linkData));
+				/** @var array{operationRef?: string, operationId?: string, parameters?: mixed[], requestBody?: mixed, description?: string, server?: mixed[]} $link */
+				$link = $linkData;
+				$response->setLink($key, Link::fromArray($link));
 			}
 		}
 

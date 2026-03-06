@@ -27,7 +27,7 @@ class Header
 	private array $examples = [];
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{description?: string, required?: bool, deprecated?: bool, allowEmptyValue?: bool, style?: string, explode?: bool, allowReserved?: bool, schema?: mixed[], example?: mixed, examples?: mixed[]} $data
 	 */
 	public static function fromArray(array $data): Header
 	{

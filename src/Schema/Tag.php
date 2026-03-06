@@ -19,7 +19,7 @@ class Tag
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{name: string, description?: string, externalDocs?: array{url: string, description?: string}} $data
 	 */
 	public static function fromArray(array $data): Tag
 	{

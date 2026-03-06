@@ -5,10 +5,10 @@ on:
   workflow_dispatch:
 
   push:
-    branches: [ "*" ]
+    branches: ["*"]
 
   schedule:
-    - cron: "0 8 * * 1"
+    - cron: "0 10 * * 1"
 
 jobs:
   test85:

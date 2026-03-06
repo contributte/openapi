@@ -28,7 +28,7 @@ class Info
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{title: string, version: string, summary?: string, description?: string, termsOfService?: string, license?: mixed[], contact?: mixed[]} $data
 	 */
 	public static function fromArray(array $data): Info
 	{
@@ -36,8 +36,23 @@ class Info
 		$info->setSummary($data['summary'] ?? null);
 		$info->setDescription($data['description'] ?? null);
 		$info->setTermsOfService($data['termsOfService'] ?? null);
-		$info->setLicense(isset($data['license']) ? License::fromArray($data['license']) : null);
-		$info->setContact(isset($data['contact']) ? Contact::fromArray($data['contact']) : null);
+
+		if (isset($data['license'])) {
+			/** @var array{name: string, identifier?: string, url?: string} $license */
+			$license = $data['license'];
+			$info->setLicense(License::fromArray($license));
+		} else {
+			$info->setLicense(null);
+		}
+
+		if (isset($data['contact'])) {
+			/** @var array{name?: string, url?: string, email?: string} $contact */
+			$contact = $data['contact'];
+			$info->setContact(Contact::fromArray($contact));
+		} else {
+			$info->setContact(null);
+		}
+
 		$info->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $info;

@@ -14,7 +14,7 @@ class Contact
 	private ?VendorExtensions $vendorExtensions = null;
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{name?: string, url?: string, email?: string} $data
 	 */
 	public static function fromArray(array $data): Contact
 	{

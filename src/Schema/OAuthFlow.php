@@ -26,7 +26,7 @@ class OAuthFlow
 	}
 
 	/**
-	 * @param mixed[] $data
+	 * @param array{authorizationUrl: string, tokenUrl: string, refreshUrl: string, scopes: array<string, string>} $data
 	 */
 	public static function fromArray(array $data): self
 	{
