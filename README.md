@@ -12,36 +12,84 @@
   <a href="https://bit.ly/ctteg"><img src="https://badgen.net/badge/support/gitter/cyan"></a>
   <a href="https://bit.ly/cttfo"><img src="https://badgen.net/badge/support/forum/yellow"></a>
   <a href="https://contributte.org/partners.html"><img src="https://badgen.net/badge/become/a%20patron/F96854"></a>
-<p>
+</p>
 
 <p align=center>
 Website 🚀 <a href="https://contributte.org">contributte.org</a> | Contact 👨🏻‍💻 <a href="https://f3l1x.io">f3l1x.io</a> | Twitter 🐦 <a href="https://twitter.com/contributte">@contributte</a>
 </p>
 
-## Usage
+Pure PHP OpenAPI 3.0 implementation for Nette Framework.
+
+## Versions
+
+| State  | Version | Branch   | Nette | PHP     |
+|--------|---------|----------|-------|---------|
+| dev    | `^0.2`  | `master` | 4.0+  | `>=8.2` |
+| stable | `^0.1`  | `master` | 4.0+  | `>=8.1` |
+
+## Installation
 
 To install the latest version of `contributte/openapi` use [Composer](https://getcomposer.org).
 
-```
+```bash
 composer require contributte/openapi
 ```
 
-## Documentation
+## OpenAPI
 
-For details on how to use this package, check out our [documentation](.docs).
+- [Callback.php](src/Schema/Callback.php)
+- [Components.php](src/Schema/Components.php)
+- [Contact.php](src/Schema/Contact.php)
+- [Example.php](src/Schema/Example.php)
+- [ExternalDocumentation.php](src/Schema/ExternalDocumentation.php)
+- [Header.php](src/Schema/Header.php)
+- [Info.php](src/Schema/Info.php)
+- [License.php](src/Schema/License.php)
+- [Link.php](src/Schema/Link.php)
+- [MediaType.php](src/Schema/MediaType.php)
+- [OAuthFlow.php](src/Schema/OAuthFlow.php)
+- [OpenApi.php](src/Schema/OpenApi.php)
+- [Operation.php](src/Schema/Operation.php)
+- [Parameter.php](src/Schema/Parameter.php)
+- [PathItem.php](src/Schema/PathItem.php)
+- [Paths.php](src/Schema/Paths.php)
+- [Reference.php](src/Schema/Reference.php)
+- [RequestBody.php](src/Schema/RequestBody.php)
+- [Response.php](src/Schema/Response.php)
+- [Responses.php](src/Schema/Responses.php)
+- [Schema.php](src/Schema/Schema.php)
+- [SecurityRequirement.php](src/Schema/SecurityRequirement.php)
+- [SecurityScheme.php](src/Schema/SecurityScheme.php)
+- [Server.php](src/Schema/Server.php)
+- [ServerVariable.php](src/Schema/ServerVariable.php)
+- [Tag.php](src/Schema/Tag.php)
 
-## Version
+## Tracy
 
-| State       | Version | Branch   | Nette | PHP     |
-|-------------|---------|----------|------|---------|
-| dev         | `^0.2`  | `master` | 4.0+ | `>=8.2` |
-| stable      | `^0.1`  | `master` | 4.0+ | `>=8.1` |
+![](.docs/misc/tracy-panel.png)
+
+```neon
+services:
+    swaggerPanel:
+        class: Contributte\OpenApi\Tracy\SwaggerPanel()
+        setup:
+            - setSpec([...openapi])
+            - setLazySpec([@openapi, getSpec])
+            - setUrl('https://petstore.swagger.io/v2/swagger.json')
+            - setExpansion()
+            - setFilter("role=User")
+            - setTitle(MyAPI)
+
+tracy:
+  bar:
+    - @swaggerPanel
+```
 
 ## Development
 
 See [how to contribute](https://contributte.org/contributing.html) to this package.
 
-This package is currently maintaining by these authors.
+This package is currently maintained by these authors.
 
 <a href="https://github.com/f3l1x">
   <img width="80" height="80" src="https://avatars2.githubusercontent.com/u/538058?v=3&s=80">
