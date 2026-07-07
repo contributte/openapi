@@ -35,6 +35,37 @@ To install the latest version of `contributte/openapi` use [Composer](https://ge
 composer require contributte/openapi
 ```
 
+## Usage
+
+Create a document with schema objects and export it through `toArray()`.
+
+```php
+use Contributte\OpenApi\Schema\Info;
+use Contributte\OpenApi\Schema\OpenApi;
+use Contributte\OpenApi\Schema\Operation;
+use Contributte\OpenApi\Schema\PathItem;
+use Contributte\OpenApi\Schema\Paths;
+use Contributte\OpenApi\Schema\Response;
+use Contributte\OpenApi\Schema\Responses;
+
+$responses = new Responses();
+$responses->setResponse('200', new Response('OK'));
+
+$operation = new Operation($responses);
+$operation->setSummary('List users');
+
+$path = new PathItem();
+$path->setOperation(PathItem::OPERATION_GET, $operation);
+
+$paths = new Paths();
+$paths->setPathItem('/users', $path);
+
+$openApi = new OpenApi('3.0.3', new Info('My API', '1.0.0'), $paths);
+
+header('Content-Type: application/json');
+echo json_encode($openApi->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+```
+
 ## OpenAPI
 
 - [Callback.php](src/Schema/Callback.php)
