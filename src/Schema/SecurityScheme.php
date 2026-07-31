@@ -230,7 +230,7 @@ class SecurityScheme
 		}
 
 		if ($this->type === self::TYPE_OAUTH2) {
-			foreach (array_keys($flows) as $flowType) {
+			foreach ($flows as $flowType => $flow) {
 				if (!in_array($flowType, self::FLOWS, true)) {
 					throw new InvalidArgumentException(sprintf(
 						'Invalid flow type "%s" given. It must be one of "%s".',
@@ -238,6 +238,8 @@ class SecurityScheme
 						implode(', ', self::FLOWS)
 					));
 				}
+
+				self::validateFlow($flowType, $flow);
 			}
 		}
 
@@ -256,6 +258,34 @@ class SecurityScheme
 		}
 
 		$this->openIdConnectUrl = $openIdConnectUrl;
+	}
+
+	private static function validateFlow(string $flowType, OAuthFlow $flow): void
+	{
+		$needsAuthorizationUrl = in_array($flowType, [
+			self::FLOW_IMPLICIT,
+			self::FLOW_AUTHORIZATION_CODE,
+		], true);
+
+		if ($needsAuthorizationUrl && $flow->getAuthorizationUrl() === null) {
+			throw new InvalidArgumentException(sprintf(
+				'Attribute "authorizationUrl" is required for flow "%s".',
+				$flowType
+			));
+		}
+
+		$needsTokenUrl = in_array($flowType, [
+			self::FLOW_PASSWORD,
+			self::FLOW_CLIENT_CREDENTIALS,
+			self::FLOW_AUTHORIZATION_CODE,
+		], true);
+
+		if ($needsTokenUrl && $flow->getTokenUrl() === null) {
+			throw new InvalidArgumentException(sprintf(
+				'Attribute "tokenUrl" is required for flow "%s".',
+				$flowType
+			));
+		}
 	}
 
 }
