@@ -35,6 +35,16 @@ class ResponsesTest extends TestCase
 		Assert::equal(self::ARRAY, $this->responses->toArray());
 	}
 
+	public function testVendorExtensions(): void
+	{
+		$expectedData = self::ARRAY + ['x-internal-id' => 42];
+
+		$responses = Responses::fromArray($expectedData);
+
+		Assert::same(42, $responses->getVendorExtensions()?->getExtension('x-internal-id'));
+		Assert::equal($expectedData, $responses->toArray());
+	}
+
 	protected function setUp(): void
 	{
 		$this->responses = new Responses();

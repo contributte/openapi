@@ -18,6 +18,10 @@ class Responses
 		$responses = new Responses();
 
 		foreach ($data as $key => $responseData) {
+			if (str_starts_with((string) $key, 'x-')) {
+				continue;
+			}
+
 			if (isset($responseData['$ref'])) {
 				$responses->setResponse((string) $key, Reference::fromArray($responseData));
 			} else {
@@ -56,7 +60,8 @@ class Responses
 		}
 
 		if ($this->vendorExtensions !== null) {
-			$data = array_merge($data, $this->vendorExtensions->toArray());
+			// array_merge() would renumber the numeric status code keys
+			$data = array_replace($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
