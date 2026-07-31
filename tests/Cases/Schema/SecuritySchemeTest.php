@@ -217,6 +217,52 @@ class SecuritySchemeTest extends TestCase
 		}, InvalidArgumentException::class, 'Attribute "openIdConnectUrl" is required for type "openIdConnect".');
 	}
 
+	public function testImplicitFlowRequiresAuthorizationUrl(): void
+	{
+		Assert::exception(static function (): void {
+			$securityScheme = new SecurityScheme(SecurityScheme::TYPE_OAUTH2);
+			$securityScheme->setFlows([
+				SecurityScheme::FLOW_IMPLICIT => OAuthFlow::fromArray(['scopes' => []]),
+			]);
+		}, InvalidArgumentException::class, 'Attribute "authorizationUrl" is required for flow "implicit".');
+	}
+
+	public function testClientCredentialsFlowRequiresTokenUrl(): void
+	{
+		Assert::exception(static function (): void {
+			$securityScheme = new SecurityScheme(SecurityScheme::TYPE_OAUTH2);
+			$securityScheme->setFlows([
+				SecurityScheme::FLOW_CLIENT_CREDENTIALS => OAuthFlow::fromArray(['scopes' => []]),
+			]);
+		}, InvalidArgumentException::class, 'Attribute "tokenUrl" is required for flow "clientCredentials".');
+	}
+
+	public function testAuthorizationCodeFlowRequiresBothUrls(): void
+	{
+		Assert::exception(static function (): void {
+			$securityScheme = new SecurityScheme(SecurityScheme::TYPE_OAUTH2);
+			$securityScheme->setFlows([
+				SecurityScheme::FLOW_AUTHORIZATION_CODE => OAuthFlow::fromArray([
+					'authorizationUrl' => 'https://example.com/authorization',
+					'scopes' => [],
+				]),
+			]);
+		}, InvalidArgumentException::class, 'Attribute "tokenUrl" is required for flow "authorizationCode".');
+	}
+
+	public function testRefreshUrlIsNeverRequired(): void
+	{
+		Assert::noError(static function (): void {
+			$securityScheme = new SecurityScheme(SecurityScheme::TYPE_OAUTH2);
+			$securityScheme->setFlows([
+				SecurityScheme::FLOW_PASSWORD => OAuthFlow::fromArray([
+					'tokenUrl' => 'https://example.com/token',
+					'scopes' => [],
+				]),
+			]);
+		});
+	}
+
 }
 
 (new SecuritySchemeTest())->run();
