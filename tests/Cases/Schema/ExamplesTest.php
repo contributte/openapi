@@ -95,6 +95,14 @@ final class ExamplesTest extends TestCase
 		self::assertSameDataStructure($rawData, $openApiData);
 	}
 
+	public function testOauthFlows(): void
+	{
+		$rawData = Yaml::parseFile(__DIR__ . '/examples/oauth-flows-example.yaml');
+		$openApi = OpenApi::fromArray($rawData);
+		$openApiData = $openApi->toArray();
+		self::assertSameDataStructure($rawData, $openApiData);
+	}
+
 	/**
 	 * @param mixed[] $expected
 	 * @param mixed[] $actual
