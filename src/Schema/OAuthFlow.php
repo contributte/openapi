@@ -5,19 +5,24 @@ namespace Contributte\OpenApi\Schema;
 class OAuthFlow
 {
 
-	private string $authorizationUrl;
+	private ?string $authorizationUrl;
 
-	private string $tokenUrl;
+	private ?string $tokenUrl;
 
-	private string $refreshUrl;
+	private ?string $refreshUrl;
 
 	/** @var array<string, string> */
-	private array $scopes = [];
+	private array $scopes;
 
 	/**
 	 * @param array<string, string> $scopes
 	 */
-	public function __construct(string $authorizationUrl, string $tokenUrl, string $refreshUrl, array $scopes)
+	public function __construct(
+		?string $authorizationUrl = null,
+		?string $tokenUrl = null,
+		?string $refreshUrl = null,
+		array $scopes = [],
+	)
 	{
 		$this->authorizationUrl = $authorizationUrl;
 		$this->tokenUrl = $tokenUrl;
@@ -31,9 +36,9 @@ class OAuthFlow
 	public static function fromArray(array $data): self
 	{
 		return new self(
-			$data['authorizationUrl'],
-			$data['tokenUrl'],
-			$data['refreshUrl'],
+			$data['authorizationUrl'] ?? null,
+			$data['tokenUrl'] ?? null,
+			$data['refreshUrl'] ?? null,
 			$data['scopes'],
 		);
 	}
@@ -43,40 +48,51 @@ class OAuthFlow
 	 */
 	public function toArray(): array
 	{
-		return [
-			'authorizationUrl' => $this->authorizationUrl,
-			'tokenUrl' => $this->tokenUrl,
-			'refreshUrl' => $this->refreshUrl,
-			'scopes' => $this->scopes,
-		];
+		$data = [];
+
+		if ($this->authorizationUrl !== null) {
+			$data['authorizationUrl'] = $this->authorizationUrl;
+		}
+
+		if ($this->tokenUrl !== null) {
+			$data['tokenUrl'] = $this->tokenUrl;
+		}
+
+		if ($this->refreshUrl !== null) {
+			$data['refreshUrl'] = $this->refreshUrl;
+		}
+
+		$data['scopes'] = $this->scopes;
+
+		return $data;
 	}
 
-	public function getAuthorizationUrl(): string
+	public function getAuthorizationUrl(): ?string
 	{
 		return $this->authorizationUrl;
 	}
 
-	public function setAuthorizationUrl(string $authorizationUrl): void
+	public function setAuthorizationUrl(?string $authorizationUrl): void
 	{
 		$this->authorizationUrl = $authorizationUrl;
 	}
 
-	public function getTokenUrl(): string
+	public function getTokenUrl(): ?string
 	{
 		return $this->tokenUrl;
 	}
 
-	public function setTokenUrl(string $tokenUrl): void
+	public function setTokenUrl(?string $tokenUrl): void
 	{
 		$this->tokenUrl = $tokenUrl;
 	}
 
-	public function getRefreshUrl(): string
+	public function getRefreshUrl(): ?string
 	{
 		return $this->refreshUrl;
 	}
 
-	public function setRefreshUrl(string $refreshUrl): void
+	public function setRefreshUrl(?string $refreshUrl): void
 	{
 		$this->refreshUrl = $refreshUrl;
 	}
