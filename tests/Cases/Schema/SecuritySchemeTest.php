@@ -158,13 +158,18 @@ class SecuritySchemeTest extends TestCase
 		}, InvalidArgumentException::class, 'Attribute "scheme" is required for type "http".');
 	}
 
-	public function testMissingBearerFormat(): void
+	public function testBearerFormatIsOptional(): void
 	{
-		Assert::exception(static function (): void {
-			$securityScheme = new SecurityScheme(SecurityScheme::TYPE_HTTP);
-			$securityScheme->setScheme('bearer');
-			$securityScheme->setBearerFormat(null);
-		}, InvalidArgumentException::class, 'Attribute "bearerFormat" is required for type "http" and scheme "bearer".');
+		$data = [
+			'type' => SecurityScheme::TYPE_HTTP,
+			'scheme' => 'bearer',
+		];
+
+		Assert::noError(static function () use ($data): void {
+			SecurityScheme::fromArray($data);
+		});
+
+		Assert::same($data, SecurityScheme::fromArray($data)->toArray());
 	}
 
 	public function testMissingFlows(): void

@@ -204,10 +204,6 @@ class SecurityScheme
 
 	public function setBearerFormat(?string $bearerFormat): void
 	{
-		if ($this->type === self::TYPE_HTTP && $this->scheme === 'bearer' && $bearerFormat === null) {
-			throw new InvalidArgumentException('Attribute "bearerFormat" is required for type "http" and scheme "bearer".');
-		}
-
 		$this->bearerFormat = $bearerFormat;
 	}
 
