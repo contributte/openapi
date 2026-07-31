@@ -46,6 +46,10 @@ class Contact
 			$data['email'] = $this->email;
 		}
 
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
+		}
+
 		return $data;
 	}
 
