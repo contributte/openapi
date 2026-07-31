@@ -36,6 +36,53 @@ class OAuthFlowTest extends TestCase
 		Assert::same($expectedData, OAuthFlow::fromArray($realData)->toArray());
 	}
 
+	public function testImplicitFlowWithoutTokenUrl(): void
+	{
+		$data = [
+			'authorizationUrl' => 'https://example.com/authorization',
+			'scopes' => ['read' => 'Read access'],
+		];
+
+		$flow = OAuthFlow::fromArray($data);
+
+		Assert::same('https://example.com/authorization', $flow->getAuthorizationUrl());
+		Assert::null($flow->getTokenUrl());
+		Assert::null($flow->getRefreshUrl());
+		Assert::same($data, $flow->toArray());
+	}
+
+	public function testClientCredentialsFlowWithoutAuthorizationUrl(): void
+	{
+		$data = [
+			'tokenUrl' => 'https://example.com/token',
+			'scopes' => [],
+		];
+
+		$flow = OAuthFlow::fromArray($data);
+
+		Assert::null($flow->getAuthorizationUrl());
+		Assert::same('https://example.com/token', $flow->getTokenUrl());
+		Assert::same($data, $flow->toArray());
+	}
+
+	/**
+	 * The OpenAPI Specification marks `scopes` as REQUIRED on the OAuth Flow Object (the map MAY
+	 * be empty, but the key MUST be present). fromArray() must not silently manufacture it - a
+	 * missing key has to surface as an error instead of producing an OAuthFlow with scopes = [].
+	 */
+	public function testMissingScopesIsNotSilentlyAccepted(): void
+	{
+		$data = [
+			'tokenUrl' => 'https://example.com/token',
+		];
+
+		Assert::exception(static function () use ($data): void {
+			Assert::error(static function () use ($data): void {
+				OAuthFlow::fromArray($data);
+			}, E_WARNING, 'Undefined array key "scopes"');
+		}, \TypeError::class);
+	}
+
 }
 
 (new OAuthFlowTest())->run();
