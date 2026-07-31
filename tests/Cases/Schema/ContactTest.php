@@ -33,6 +33,19 @@ class ContactTest extends TestCase
 		Assert::same($expectedData, Contact::fromArray($realData)->toArray());
 	}
 
+	public function testVendorExtensions(): void
+	{
+		$expectedData = [
+			'name' => 'API Support',
+			'x-internal-id' => 42,
+		];
+
+		$contact = Contact::fromArray($expectedData);
+
+		Assert::same(42, $contact->getVendorExtensions()?->getExtension('x-internal-id'));
+		Assert::same($expectedData, $contact->toArray());
+	}
+
 	public function testRequired(): void
 	{
 		$contact = new Contact();
