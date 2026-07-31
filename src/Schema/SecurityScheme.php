@@ -31,11 +31,16 @@ class SecurityScheme
 		self::IN_QUERY,
 	];
 
+	public const FLOW_IMPLICIT = 'implicit';
+	public const FLOW_PASSWORD = 'password';
+	public const FLOW_CLIENT_CREDENTIALS = 'clientCredentials';
+	public const FLOW_AUTHORIZATION_CODE = 'authorizationCode';
+
 	public const FLOWS = [
-		'implicit',
-		'password',
-		'clientCredentials',
-		'authorizationCode',
+		self::FLOW_IMPLICIT,
+		self::FLOW_PASSWORD,
+		self::FLOW_CLIENT_CREDENTIALS,
+		self::FLOW_AUTHORIZATION_CODE,
 	];
 
 	private string $type;
@@ -225,11 +230,12 @@ class SecurityScheme
 		}
 
 		if ($this->type === self::TYPE_OAUTH2) {
-			foreach (self::FLOWS as $flow) {
-				if (!array_key_exists($flow, $flows)) {
+			foreach (array_keys($flows) as $flowType) {
+				if (!in_array($flowType, self::FLOWS, true)) {
 					throw new InvalidArgumentException(sprintf(
-						'Attribute "flows" is missing required key "%s".',
-						$flow
+						'Invalid flow type "%s" given. It must be one of "%s".',
+						$flowType,
+						implode(', ', self::FLOWS)
 					));
 				}
 			}

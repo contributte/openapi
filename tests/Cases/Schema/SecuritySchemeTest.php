@@ -180,19 +180,33 @@ class SecuritySchemeTest extends TestCase
 		}, InvalidArgumentException::class, 'Attribute "flows" is required for type "oauth2".');
 	}
 
-	public function testMissingFlow(): void
+	public function testSingleFlowIsAccepted(): void
+	{
+		$data = [
+			'type' => SecurityScheme::TYPE_OAUTH2,
+			'flows' => [
+				'authorizationCode' => [
+					'authorizationUrl' => 'https://example.com/authorization',
+					'tokenUrl' => 'https://example.com/token',
+					'scopes' => ['read' => 'Read access'],
+				],
+			],
+		];
+
+		Assert::same($data, SecurityScheme::fromArray($data)->toArray());
+	}
+
+	public function testUnknownFlowTypeIsRejected(): void
 	{
 		Assert::exception(static function (): void {
 			$securityScheme = new SecurityScheme(SecurityScheme::TYPE_OAUTH2);
 			$securityScheme->setFlows([
-				'implicit' => OAuthFlow::fromArray([
+				'telepathy' => OAuthFlow::fromArray([
 					'authorizationUrl' => 'https://example.com/authorization',
-					'tokenUrl' => 'https://example.com/token',
-					'refreshUrl' => 'https://example.com/refresh',
-					'scopes' => ['read' => 'Read access', 'write' => 'Write access'],
+					'scopes' => [],
 				]),
 			]);
-		}, InvalidArgumentException::class, 'Attribute "flows" is missing required key "password".');
+		}, InvalidArgumentException::class, 'Invalid flow type "telepathy" given. It must be one of "implicit, password, clientCredentials, authorizationCode".');
 	}
 
 	public function testMissingOpenIdConnectUrl(): void
