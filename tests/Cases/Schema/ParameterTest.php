@@ -98,11 +98,27 @@ class ParameterTest extends TestCase
 		Assert::same($expectedData, $parameter->toArray());
 	}
 
+	public function testQuerystringLocation(): void
+	{
+		$expectedData = [
+			'name' => 'query',
+			'in' => 'querystring',
+			'content' => [
+				'application/x-www-form-urlencoded' => ['schema' => ['type' => 'string']],
+			],
+		];
+
+		$parameter = Parameter::fromArray($expectedData);
+
+		Assert::same(Parameter::IN_QUERYSTRING, $parameter->getIn());
+		Assert::same($expectedData, $parameter->toArray());
+	}
+
 	public function testInvalidIn(): void
 	{
 		Assert::exception(static function (): void {
 			new Parameter('foo', 'invalid');
-		}, InvalidArgumentException::class, 'Invalid value "invalid" for attribute "in" given. It must be one of "cookie, header, path, query".');
+		}, InvalidArgumentException::class, 'Invalid value "invalid" for attribute "in" given. It must be one of "cookie, header, path, query, querystring".');
 	}
 
 	public function testSchemaReference(): void

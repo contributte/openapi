@@ -11,12 +11,14 @@ class Parameter
 	public const IN_HEADER = 'header';
 	public const IN_PATH = 'path';
 	public const IN_QUERY = 'query';
+	public const IN_QUERYSTRING = 'querystring';
 
 	public const INS = [
 		self::IN_COOKIE,
 		self::IN_HEADER,
 		self::IN_PATH,
 		self::IN_QUERY,
+		self::IN_QUERYSTRING,
 	];
 
 	private string $name;
