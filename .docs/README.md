@@ -66,6 +66,9 @@ foreach ((new VersionValidator())->validate($openApi) as $problem) {
 Problems are returned, never thrown. Each one carries a level (`Problem::LEVEL_WARNING` or
 `Problem::LEVEL_ERROR`), a dot-separated path and a message.
 
+A document that declares no version is read as `Version::DEFAULT`, which is 3.0 - the
+version this library implemented before it could tell versions apart.
+
 `Version` compares version strings on their own:
 
 ```php

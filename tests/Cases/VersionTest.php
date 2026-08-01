@@ -40,6 +40,11 @@ class VersionTest extends TestCase
 		Assert::false(Version::isBefore('3.2.0', '3.1'));
 	}
 
+	public function testDefaultIsThreeZero(): void
+	{
+		Assert::same(Version::V3_0, Version::DEFAULT);
+	}
+
 	public function testIsSupported(): void
 	{
 		Assert::true(Version::isSupported('3.0.4'));

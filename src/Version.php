@@ -8,6 +8,12 @@ class Version
 	public const V3_0 = '3.0';
 	public const V3_1 = '3.1';
 
+	/**
+	 * The version assumed when a document declares none. The library implemented 3.0
+	 * before it could tell versions apart, so such documents keep being read as 3.0.
+	 */
+	public const DEFAULT = self::V3_0;
+
 	public const SUPPORTED = [
 		self::V3_0,
 		self::V3_1,
