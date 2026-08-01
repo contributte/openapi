@@ -54,8 +54,17 @@ class VersionValidator
 	{
 		$data = $openApi->toArray();
 		$version = is_string($data['openapi'] ?? null) ? $data['openapi'] : '';
+		$problems = [];
 
-		if (!Version::isSupported($version)) {
+		if ($version === '') {
+			$problems[] = new Problem(
+				Problem::LEVEL_WARNING,
+				'openapi',
+				sprintf('No OpenAPI version declared. Reading the document as %s.', Version::DEFAULT)
+			);
+
+			$version = Version::DEFAULT;
+		} elseif (!Version::isSupported($version)) {
 			return [
 				new Problem(
 					Problem::LEVEL_WARNING,
@@ -68,8 +77,6 @@ class VersionValidator
 				),
 			];
 		}
-
-		$problems = [];
 
 		foreach (self::FIELD_INTRODUCED_IN as $path => $introducedIn) {
 			if (!Version::isBefore($version, $introducedIn)) {

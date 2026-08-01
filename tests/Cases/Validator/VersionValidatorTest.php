@@ -2,6 +2,7 @@
 
 namespace Tests\Cases\Validator;
 
+use Contributte\OpenApi\Schema\Info;
 use Contributte\OpenApi\Schema\OpenApi;
 use Contributte\OpenApi\Validator\Problem;
 use Contributte\OpenApi\Validator\VersionValidator;
@@ -29,6 +30,17 @@ class VersionValidatorTest extends TestCase
 
 		Assert::same(['warning openapi'], $this->summarize($problems));
 		Assert::contains('2.0', $problems[0]->getMessage());
+	}
+
+	public function testMissingVersionIsReadAsDefault(): void
+	{
+		$openApi = new OpenApi('', Info::fromArray(self::INFO + ['summary' => 'A short summary']));
+
+		Assert::same([
+			'warning openapi',
+			'warning info.summary',
+			'error paths',
+		], $this->summarize($this->validator->validate($openApi)));
 	}
 
 	public function testFieldsIntroducedLater(): void
