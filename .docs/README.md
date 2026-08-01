@@ -6,6 +6,7 @@ Pure PHP OpenAPI 3.0 implementation for Nette Framework.
 
 - [Setup](#setup)
 - [OpenAPI](#tracy)
+- [Version validation](#version-validation)
 - [Tracy](#tracy)
 
 ## Setup
@@ -44,6 +45,35 @@ composer require contributte/openapi
 - [Server.php](../src/Schema/Server.php)
 - [ServerVariable.php](../src/Schema/ServerVariable.php)
 - [Tag.php](../src/Schema/Tag.php)
+
+## Version validation
+
+The schema classes accept any document, whatever version it declares. `VersionValidator`
+reports constructs that do not belong to that version - for example a 3.0 document using
+`webhooks`, which was introduced in 3.1.
+
+```php
+use Contributte\OpenApi\Schema\OpenApi;
+use Contributte\OpenApi\Validator\VersionValidator;
+
+$openApi = OpenApi::fromArray($data);
+
+foreach ((new VersionValidator())->validate($openApi) as $problem) {
+	echo $problem; // [warning] webhooks: Attribute "webhooks" was introduced in OpenAPI 3.1, but the document declares 3.0.
+}
+```
+
+Problems are returned, never thrown. Each one carries a level (`Problem::LEVEL_WARNING` or
+`Problem::LEVEL_ERROR`), a dot-separated path and a message.
+
+`Version` compares version strings on their own:
+
+```php
+use Contributte\OpenApi\Version;
+
+Version::match('3.0.4', '3.0.x'); // true
+Version::isSupported('3.1.1');    // true
+```
 
 ## Tracy
 
