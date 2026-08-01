@@ -44,6 +44,9 @@ class Parameter
 	/** @var mixed[] */
 	private array $examples = [];
 
+	/** @var MediaType[]|null */
+	private ?array $content = null;
+
 	private ?VendorExtensions $vendorExtensions = null;
 
 	public function __construct(string $name, string $in)
@@ -80,6 +83,14 @@ class Parameter
 			} else {
 				$parameter->setSchema(Schema::fromArray($data['schema']));
 			}
+		}
+
+		if (isset($data['content'])) {
+			$parameter->content = [];
+		}
+
+		foreach ($data['content'] ?? [] as $key => $contentData) {
+			$parameter->setContent($key, MediaType::fromArray($contentData));
 		}
 
 		$parameter->setExample($data['example'] ?? null);
@@ -125,6 +136,11 @@ class Parameter
 	public function setExamples(array $examples): void
 	{
 		$this->examples = $examples;
+	}
+
+	public function setContent(string $type, MediaType $mediaType): void
+	{
+		$this->content[$type] = $mediaType;
 	}
 
 	/**
@@ -176,6 +192,10 @@ class Parameter
 			$data['examples'] = $this->examples;
 		}
 
+		if ($this->content !== null) {
+			$data['content'] = array_map(static fn (MediaType $mediaType): array => $mediaType->toArray(), $this->content);
+		}
+
 		if ($this->vendorExtensions !== null) {
 			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
@@ -221,6 +241,14 @@ class Parameter
 	public function getExample(): mixed
 	{
 		return $this->example;
+	}
+
+	/**
+	 * @return MediaType[]
+	 */
+	public function getContent(): array
+	{
+		return $this->content ?? [];
 	}
 
 	public function getStyle(): ?string

@@ -4,6 +4,7 @@ namespace Tests\Cases\Schema;
 
 require_once __DIR__ . '/../../bootstrap.php';
 
+use Contributte\OpenApi\Schema\MediaType;
 use Contributte\OpenApi\Schema\Parameter;
 use Contributte\OpenApi\Schema\Reference;
 use Contributte\OpenApi\Schema\Schema;
@@ -79,6 +80,22 @@ class ParameterTest extends TestCase
 
 		Assert::same($expectedData, $realData);
 		Assert::same($expectedData, Parameter::fromArray($realData)->toArray());
+	}
+
+	public function testContent(): void
+	{
+		$expectedData = [
+			'name' => 'filter',
+			'in' => 'query',
+			'content' => [
+				'application/json' => ['schema' => ['type' => 'object']],
+			],
+		];
+
+		$parameter = Parameter::fromArray($expectedData);
+
+		Assert::type(MediaType::class, $parameter->getContent()['application/json']);
+		Assert::same($expectedData, $parameter->toArray());
 	}
 
 	public function testInvalidIn(): void
