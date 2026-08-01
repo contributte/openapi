@@ -13,6 +13,7 @@ class PathItem
 	public const OPERATION_HEAD = 'head';
 	public const OPERATION_PATCH = 'patch';
 	public const OPERATION_TRACE = 'trace';
+	public const OPERATION_QUERY = 'query';
 
 	/** @var string[] */
 	private static array $allowedOperations = [
@@ -24,6 +25,7 @@ class PathItem
 		self::OPERATION_HEAD,
 		self::OPERATION_PATCH,
 		self::OPERATION_TRACE,
+		self::OPERATION_QUERY,
 	];
 
 	private ?string $summary = null;
