@@ -26,6 +26,9 @@ class Header
 	/** @var mixed[] */
 	private array $examples = [];
 
+	/** @var MediaType[]|null */
+	private ?array $content = null;
+
 	/**
 	 * @param mixed[] $data
 	 */
@@ -50,6 +53,14 @@ class Header
 
 		$header->setExample($data['example'] ?? null);
 		$header->setExamples($data['examples'] ?? []);
+
+		if (isset($data['content'])) {
+			$header->content = [];
+		}
+
+		foreach ($data['content'] ?? [] as $key => $contentData) {
+			$header->setContent($key, MediaType::fromArray($contentData));
+		}
 
 		return $header;
 	}
@@ -99,6 +110,10 @@ class Header
 
 		if ($this->examples !== []) {
 			$data['examples'] = $this->examples;
+		}
+
+		if ($this->content !== null) {
+			$data['content'] = array_map(static fn (MediaType $mediaType): array => $mediaType->toArray(), $this->content);
 		}
 
 		return $data;
@@ -155,6 +170,11 @@ class Header
 	public function setExamples(array $examples): void
 	{
 		$this->examples = $examples;
+	}
+
+	public function setContent(string $type, MediaType $mediaType): void
+	{
+		$this->content[$type] = $mediaType;
 	}
 
 }
