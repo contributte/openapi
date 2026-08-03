@@ -1,7 +1,7 @@
 openapi: "3.0.3"
 info:
   title: Complete 3.0 document
-  description: Uses every field OpenAPI 3.0 defines.
+  description: Uses every field OpenAPI 3.0 defines, except where two fields exclude each other.
   termsOfService: https://example.com/terms
   contact:
     name: API Support
