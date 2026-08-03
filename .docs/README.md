@@ -51,13 +51,16 @@ composer require contributte/openapi
 
 | OpenAPI | Support |
 |---------|---------|
-| 3.0     | full    |
-| 3.1     | full    |
+| 3.0     | yes     |
+| 3.1     | yes     |
 
-Both claims are backed by a test, not by hand: `tests/Cases/VersionSupportTest.php` round-trips
-a complete document per version - one that uses every field the version defines - and requires
-`VersionValidator` to report nothing against it. See `tests/Cases/Schema/examples/complete-3-0.yaml`
-and `complete-3-1.yaml`.
+`tests/Cases/VersionSupportTest.php` backs both rows with a complete document per version -
+`tests/Cases/Schema/examples/complete-3-0.yaml` and `complete-3-1.yaml` - each using every field
+its version defines, except where the specification makes two fields mutually exclusive and only
+one of them can appear. For each document the test requires that a `fromArray()`/`toArray()` round
+trip loses nothing and that `VersionValidator` reports no problem. For the fields a version
+introduced, it additionally requires the document to exercise them, so a later version cannot be
+called supported while its additions go untested.
 
 ## Version validation
 
