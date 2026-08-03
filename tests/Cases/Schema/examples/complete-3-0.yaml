@@ -239,3 +239,102 @@ paths:
       responses:
         '200':
           description: Trace result
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        tag:
+          type: string
+  responses:
+    NotFound:
+      description: The pet does not exist
+      content:
+        application/json:
+          schema:
+            type: object
+  parameters:
+    PetIdParameter:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: string
+  examples:
+    PetExample:
+      summary: An example pet
+      description: A pet with the minimum fields
+      value:
+        id: abc123
+  requestBodies:
+    PetBody:
+      description: A pet to store
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Pet'
+  headers:
+    XRateLimit:
+      description: Calls left this hour
+      schema:
+        type: integer
+  securitySchemes:
+    api_key:
+      type: apiKey
+      description: Key based authentication
+      name: api_key
+      in: header
+    basic_auth:
+      type: http
+      description: Basic authentication
+      scheme: basic
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    petstore_auth:
+      type: oauth2
+      description: OAuth 2 authentication
+      flows:
+        implicit:
+          authorizationUrl: https://example.com/oauth/authorize
+          refreshUrl: https://example.com/oauth/refresh
+          scopes:
+            read:pets: Read pets
+        password:
+          tokenUrl: https://example.com/oauth/token
+          refreshUrl: https://example.com/oauth/refresh
+          scopes:
+            read:pets: Read pets
+        clientCredentials:
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            write:pets: Write pets
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          refreshUrl: https://example.com/oauth/refresh
+          scopes:
+            read:pets: Read pets
+            write:pets: Write pets
+    openid_auth:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
+  links:
+    OwnerLink:
+      operationRef: '#/paths/~1owners~1{ownerId}/get'
+      parameters:
+        ownerId: $response.body#/ownerId
+      description: The owner of this pet
+  callbacks:
+    PetStatusCallback:
+      '{$request.body#/callbackUrl}':
+        post:
+          responses:
+            '200':
+              description: Acknowledged
