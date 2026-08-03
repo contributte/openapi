@@ -138,7 +138,7 @@ paths:
                     id: abc123
           links:
             owner:
-              operationId: readOwner
+              operationId: readPet
               parameters:
                 ownerId: $response.body#/ownerId
               requestBody: $response.body
@@ -325,7 +325,7 @@ components:
       openIdConnectUrl: https://example.com/.well-known/openid-configuration
   links:
     OwnerLink:
-      operationRef: '#/paths/~1owners~1{ownerId}/get'
+      operationRef: '#/paths/~1pets~1{petId}/get'
       parameters:
         ownerId: $response.body#/ownerId
       description: The owner of this pet
