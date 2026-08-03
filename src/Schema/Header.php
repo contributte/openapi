@@ -29,6 +29,8 @@ class Header
 	/** @var MediaType[]|null */
 	private ?array $content = null;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	/**
 	 * @param mixed[] $data
 	 */
@@ -61,6 +63,8 @@ class Header
 		foreach ($data['content'] ?? [] as $key => $contentData) {
 			$header->setContent($key, MediaType::fromArray($contentData));
 		}
+
+		$header->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $header;
 	}
@@ -114,6 +118,10 @@ class Header
 
 		if ($this->content !== null) {
 			$data['content'] = array_map(static fn (MediaType $mediaType): array => $mediaType->toArray(), $this->content);
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -175,6 +183,16 @@ class Header
 	public function setContent(string $type, MediaType $mediaType): void
 	{
 		$this->content[$type] = $mediaType;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

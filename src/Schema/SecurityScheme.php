@@ -60,6 +60,8 @@ class SecurityScheme
 
 	private ?string $openIdConnectUrl = null;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	public function __construct(string $type)
 	{
 		$this->setType($type);
@@ -79,6 +81,7 @@ class SecurityScheme
 		$securityScheme->setBearerFormat($data['bearerFormat'] ?? null);
 		$securityScheme->setFlows(array_map(static fn (array $flow): OAuthFlow => OAuthFlow::fromArray($flow), $data['flows'] ?? []));
 		$securityScheme->setOpenIdConnectUrl($data['openIdConnectUrl'] ?? null);
+		$securityScheme->setVendorExtensions(VendorExtensions::fromArray($data));
 
 		return $securityScheme;
 	}
@@ -117,6 +120,10 @@ class SecurityScheme
 
 		if ($this->openIdConnectUrl !== null) {
 			$data['openIdConnectUrl'] = $this->openIdConnectUrl;
+		}
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
 		}
 
 		return $data;
@@ -258,6 +265,16 @@ class SecurityScheme
 		}
 
 		$this->openIdConnectUrl = $openIdConnectUrl;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 	private static function validateFlow(string $flowType, OAuthFlow $flow): void

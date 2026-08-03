@@ -65,6 +65,20 @@ class OAuthFlowTest extends TestCase
 		Assert::same($data, $flow->toArray());
 	}
 
+	public function testVendorExtensions(): void
+	{
+		$expectedData = [
+			'authorizationUrl' => 'https://example.com/authorization',
+			'scopes' => ['read' => 'Read access'],
+			'x-internal' => true,
+		];
+
+		$flow = OAuthFlow::fromArray($expectedData);
+
+		Assert::same(true, $flow->getVendorExtensions()?->getExtension('x-internal'));
+		Assert::same($expectedData, $flow->toArray());
+	}
+
 	/**
 	 * The OpenAPI Specification marks `scopes` as REQUIRED on the OAuth Flow Object (the map MAY
 	 * be empty, but the key MUST be present). fromArray() must not silently manufacture it - a

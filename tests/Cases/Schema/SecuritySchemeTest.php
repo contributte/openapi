@@ -116,6 +116,21 @@ class SecuritySchemeTest extends TestCase
 		Assert::same($expected, SecurityScheme::fromArray($array)->toArray());
 	}
 
+	public function testVendorExtensions(): void
+	{
+		$expectedData = [
+			'type' => SecurityScheme::TYPE_API_KEY,
+			'name' => 'api_key',
+			'in' => SecurityScheme::IN_HEADER,
+			'x-internal' => true,
+		];
+
+		$securityScheme = SecurityScheme::fromArray($expectedData);
+
+		Assert::same(true, $securityScheme->getVendorExtensions()?->getExtension('x-internal'));
+		Assert::same($expectedData, $securityScheme->toArray());
+	}
+
 	public function testInvalidType(): void
 	{
 		Assert::exception(static function (): void {

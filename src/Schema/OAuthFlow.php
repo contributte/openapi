@@ -14,6 +14,8 @@ class OAuthFlow
 	/** @var array<string, string> */
 	private array $scopes;
 
+	private ?VendorExtensions $vendorExtensions = null;
+
 	/**
 	 * @param array<string, string> $scopes
 	 */
@@ -35,12 +37,15 @@ class OAuthFlow
 	 */
 	public static function fromArray(array $data): self
 	{
-		return new self(
+		$flow = new self(
 			$data['authorizationUrl'] ?? null,
 			$data['tokenUrl'] ?? null,
 			$data['refreshUrl'] ?? null,
 			$data['scopes'],
 		);
+		$flow->setVendorExtensions(VendorExtensions::fromArray($data));
+
+		return $flow;
 	}
 
 	/**
@@ -63,6 +68,10 @@ class OAuthFlow
 		}
 
 		$data['scopes'] = $this->scopes;
+
+		if ($this->vendorExtensions !== null) {
+			$data = array_merge($data, $this->vendorExtensions->toArray());
+		}
 
 		return $data;
 	}
@@ -111,6 +120,16 @@ class OAuthFlow
 	public function setScopes(array $scopes): void
 	{
 		$this->scopes = $scopes;
+	}
+
+	public function getVendorExtensions(): ?VendorExtensions
+	{
+		return $this->vendorExtensions;
+	}
+
+	public function setVendorExtensions(?VendorExtensions $vendorExtensions): void
+	{
+		$this->vendorExtensions = $vendorExtensions;
 	}
 
 }

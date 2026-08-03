@@ -33,6 +33,19 @@ class HeaderTest extends TestCase
 		Assert::same($expectedData, Header::fromArray($expectedData)->toArray());
 	}
 
+	public function testVendorExtensions(): void
+	{
+		$expectedData = [
+			'description' => 'The number of allowed requests in the current period',
+			'x-internal' => true,
+		];
+
+		$header = Header::fromArray($expectedData);
+
+		Assert::same(true, $header->getVendorExtensions()?->getExtension('x-internal'));
+		Assert::same($expectedData, $header->toArray());
+	}
+
 }
 
 (new HeaderTest())->run();
