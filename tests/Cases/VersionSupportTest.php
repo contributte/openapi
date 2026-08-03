@@ -134,27 +134,37 @@ final class VersionSupportTest extends TestCase
 	 * oldest supported version, up to and including this one. The validator's tables are the
 	 * list of what the library knows about versions, so they double as the coverage list.
 	 *
+	 * Both tables contribute "(path, introducedIn)" pairs to a flat list rather than a
+	 * path-keyed map, so a path that carries several values introduced in different versions
+	 * cannot have one overwrite another before the version filter runs.
+	 *
 	 * @return string[]
 	 */
 	private static function expectedPaths(string $version): array
 	{
 		$oldest = Version::SUPPORTED[0];
-		$paths = [];
 
-		$introducedIn = VersionValidator::FIELD_INTRODUCED_IN;
+		$pairs = [];
+
+		foreach (VersionValidator::FIELD_INTRODUCED_IN as $path => $introduced) {
+			$pairs[] = [$path, $introduced];
+		}
 
 		foreach (VersionValidator::VALUE_INTRODUCED_IN as $path => $values) {
 			foreach ($values as $introduced) {
-				$introducedIn[$path] = $introduced;
+				$pairs[] = [$path, $introduced];
 			}
 		}
 
-		foreach ($introducedIn as $path => $introduced) {
+		$paths = [];
+
+		foreach ($pairs as [$path, $introduced]) {
 			if (Version::isBefore($oldest, $introduced) && !Version::isBefore($version, $introduced)) {
-				$paths[] = $path;
+				$paths[$path] = true;
 			}
 		}
 
+		$paths = array_keys($paths);
 		sort($paths);
 
 		return $paths;
