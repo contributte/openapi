@@ -103,8 +103,6 @@ paths:
               description: Calls left this hour
               required: false
               deprecated: false
-              allowEmptyValue: false
-              allowReserved: false
               style: simple
               explode: false
               schema:
