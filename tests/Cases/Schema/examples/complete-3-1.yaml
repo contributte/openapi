@@ -2,25 +2,44 @@ openapi: "3.1.1"
 jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Complete 3.1 document
-  summary: Uses every field OpenAPI 3.1 defines.
-  version: 1.0.0
+  summary: A complete 3.1 document.
+  description: Uses every field OpenAPI 3.1 defines.
+  termsOfService: https://example.com/terms
+  contact:
+    name: API Support
+    url: https://example.com/support
+    email: support@example.com
   license:
     name: MIT
     identifier: MIT
-paths:
-  /pets:
-    get:
-      responses:
-        '200':
-          description: A list of pets
-          content:
-            application/json:
-              schema:
-                type: [array, "null"]
-                prefixItems:
-                  - type: string
-                unevaluatedProperties: false
-                contentMediaType: application/json
+  version: 1.0.0
+servers:
+  - url: https://{region}.example.com/{version}
+    description: Regional server
+    variables:
+      region:
+        enum:
+          - eu
+          - us
+        default: eu
+        description: Data region
+      version:
+        default: v1
+security:
+  - api_key: []
+  - petstore_auth:
+      - read:pets
+      - write:pets
+tags:
+  - name: pets
+    description: Everything about pets
+    externalDocs:
+      description: Pet documentation
+      url: https://example.com/docs/pets
+externalDocs:
+  description: Full documentation
+  url: https://example.com/docs
+x-vendor-flag: true
 webhooks:
   petCreated:
     post:
@@ -37,6 +56,192 @@ webhooks:
     $ref: '#/components/pathItems/petEvent'
     summary: Reference summary
     description: Reference description
+paths:
+  /pets/{petId}:
+    summary: A single pet
+    description: Operations on one pet
+    servers:
+      - url: https://pets.example.com
+    parameters:
+      - name: petId
+        in: path
+        description: Pet identifier
+        required: true
+        deprecated: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: abc123
+    get:
+      tags:
+        - pets
+      summary: Read a pet
+      description: Returns a single pet
+      externalDocs:
+        description: Operation documentation
+        url: https://example.com/docs/read-pet
+      operationId: readPet
+      deprecated: true
+      parameters:
+        - name: verbose
+          in: query
+          description: Return the long form
+          required: false
+          allowEmptyValue: true
+          allowReserved: true
+          style: form
+          explode: true
+          schema:
+            type: boolean
+          examples:
+            enabled:
+              summary: Verbose enabled
+              description: Ask for the long form
+              value: true
+        - name: X-Trace
+          in: header
+          required: false
+          style: simple
+          schema:
+            type: string
+        - name: session
+          in: cookie
+          required: false
+          style: form
+          content:
+            application/json:
+              schema:
+                type: object
+      responses:
+        '200':
+          description: The pet
+          headers:
+            X-Rate-Limit:
+              description: Calls left this hour
+              required: false
+              deprecated: false
+              style: simple
+              explode: false
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: [object, "null"]
+                const: null
+                prefixItems:
+                  - type: string
+                unevaluatedProperties: false
+                contentMediaType: application/json
+              example:
+                id: abc123
+              examples:
+                first:
+                  summary: The first pet
+                  value:
+                    id: abc123
+          links:
+            owner:
+              operationId: readOwner
+              parameters:
+                ownerId: $response.body#/ownerId
+              requestBody: $response.body
+              description: The owner of this pet
+              server:
+                url: https://owners.example.com
+                description: Owner service
+        default:
+          description: Unexpected error
+      callbacks:
+        petStatus:
+          '{$request.body#/callbackUrl}':
+            post:
+              requestBody:
+                description: Status update
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+              responses:
+                '200':
+                  description: Acknowledged
+      security:
+        - api_key: []
+      servers:
+        - url: https://pets.example.com/v1
+    put:
+      operationId: replacePet
+      requestBody:
+        description: The replacement pet
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The replaced pet
+    post:
+      operationId: uploadPetPhoto
+      requestBody:
+        description: A multipart upload
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profile:
+                  type: object
+                avatar:
+                  type: string
+                  format: binary
+            encoding:
+              avatar:
+                contentType: image/png
+                headers:
+                  X-Checksum:
+                    description: Upload checksum
+                    schema:
+                      type: string
+                style: form
+                explode: false
+                allowReserved: false
+      responses:
+        '201':
+          description: Photo stored
+    delete:
+      operationId: deletePet
+      responses:
+        '204':
+          description: Deleted
+    options:
+      operationId: describePet
+      responses:
+        '200':
+          description: Allowed methods
+    head:
+      operationId: checkPet
+      responses:
+        '200':
+          description: Pet exists
+    patch:
+      operationId: updatePet
+      requestBody:
+        content:
+          application/merge-patch+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The updated pet
+    trace:
+      operationId: tracePet
+      responses:
+        '200':
+          description: Trace result
 components:
   pathItems:
     petEvent:
@@ -44,7 +249,104 @@ components:
         responses:
           '200':
             description: Acknowledged
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          type: string
+        tag:
+          type: string
+  responses:
+    NotFound:
+      description: The pet does not exist
+      content:
+        application/json:
+          schema:
+            type: object
+  parameters:
+    PetIdParameter:
+      name: petId
+      in: path
+      required: true
+      schema:
+        type: string
+  examples:
+    PetExample:
+      summary: An example pet
+      description: A pet with the minimum fields
+      value:
+        id: abc123
+  requestBodies:
+    PetBody:
+      description: A pet to store
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Pet'
+  headers:
+    XRateLimit:
+      description: Calls left this hour
+      schema:
+        type: integer
   securitySchemes:
+    api_key:
+      type: apiKey
+      description: Key based authentication
+      name: api_key
+      in: header
+    basic_auth:
+      type: http
+      description: Basic authentication
+      scheme: basic
+    bearer_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
     mtls:
       type: mutualTLS
       description: Client certificate authentication
+    petstore_auth:
+      type: oauth2
+      description: OAuth 2 authentication
+      flows:
+        implicit:
+          authorizationUrl: https://example.com/oauth/authorize
+          refreshUrl: https://example.com/oauth/refresh
+          scopes:
+            read:pets: Read pets
+        password:
+          tokenUrl: https://example.com/oauth/token
+          refreshUrl: https://example.com/oauth/refresh
+          scopes:
+            read:pets: Read pets
+        clientCredentials:
+          tokenUrl: https://example.com/oauth/token
+          scopes:
+            write:pets: Write pets
+        authorizationCode:
+          authorizationUrl: https://example.com/oauth/authorize
+          tokenUrl: https://example.com/oauth/token
+          refreshUrl: https://example.com/oauth/refresh
+          scopes:
+            read:pets: Read pets
+            write:pets: Write pets
+    openid_auth:
+      type: openIdConnect
+      openIdConnectUrl: https://example.com/.well-known/openid-configuration
+  links:
+    OwnerLink:
+      operationRef: '#/paths/~1owners~1{ownerId}/get'
+      parameters:
+        ownerId: $response.body#/ownerId
+      description: The owner of this pet
+  callbacks:
+    PetStatusCallback:
+      '{$request.body#/callbackUrl}':
+        post:
+          responses:
+            '200':
+              description: Acknowledged
