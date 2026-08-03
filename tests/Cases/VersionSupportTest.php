@@ -5,6 +5,7 @@ namespace Tests\Cases;
 require_once __DIR__ . '/../bootstrap.php';
 
 use Contributte\OpenApi\Schema\OpenApi;
+use Contributte\OpenApi\Validator\VersionValidator;
 use Contributte\OpenApi\Version;
 use Symfony\Component\Yaml\Yaml;
 use Tester\Assert;
@@ -52,6 +53,12 @@ final class VersionSupportTest extends TestCase
 		$openApi = OpenApi::fromArray($rawData);
 
 		self::assertSameDataStructure($rawData, $openApi->toArray(), $version);
+
+		Assert::same(
+			[],
+			array_map(strval(...), (new VersionValidator())->validate($openApi)),
+			sprintf('document of version %s raises no version problem', $version)
+		);
 	}
 
 	/**
