@@ -1,7 +1,43 @@
 openapi: "3.0.4"
 info:
   title: Complete 3.0 document
+  description: Uses every field OpenAPI 3.0 defines.
+  termsOfService: https://example.com/terms
+  contact:
+    name: API Support
+    url: https://example.com/support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
   version: 1.0.0
+servers:
+  - url: https://{region}.example.com/{version}
+    description: Regional server
+    variables:
+      region:
+        enum:
+          - eu
+          - us
+        default: eu
+        description: Data region
+      version:
+        default: v1
+security:
+  - api_key: []
+  - petstore_auth:
+      - read:pets
+      - write:pets
+tags:
+  - name: pets
+    description: Everything about pets
+    externalDocs:
+      description: Pet documentation
+      url: https://example.com/docs/pets
+externalDocs:
+  description: Full documentation
+  url: https://example.com/docs
+x-vendor-flag: true
 paths:
   /pets:
     get:
