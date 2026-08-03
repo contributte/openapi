@@ -43,7 +43,7 @@ class VersionValidator
 	/**
 	 * Required fields and the version that made them optional.
 	 */
-	public const FIELD_OPTIONAL_SINCE = [
+	private const FIELD_OPTIONAL_SINCE = [
 		'paths' => Version::V3_1,
 	];
 
