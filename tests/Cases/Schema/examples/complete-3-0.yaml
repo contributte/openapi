@@ -103,10 +103,30 @@ paths:
               description: Calls left this hour
               required: false
               deprecated: false
+              allowEmptyValue: false
+              allowReserved: false
               style: simple
               explode: false
               schema:
                 type: integer
+              example: 42
+            X-Trace-Id:
+              description: Trace identifier
+              required: false
+              style: simple
+              schema:
+                type: string
+              examples:
+                main:
+                  summary: Main trace
+                  value: trace-12345
+            X-Session-Info:
+              description: Session information
+              required: false
+              content:
+                application/json:
+                  schema:
+                    type: object
           content:
             application/json:
               schema:
