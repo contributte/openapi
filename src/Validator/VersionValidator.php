@@ -22,7 +22,7 @@ class VersionValidator
 	 * Fields and the version that introduced them. A "*" segment matches any key
 	 * of a map.
 	 */
-	private const FIELD_INTRODUCED_IN = [
+	public const FIELD_INTRODUCED_IN = [
 		'jsonSchemaDialect' => Version::V3_1,
 		'webhooks' => Version::V3_1,
 		'info.summary' => Version::V3_1,
@@ -34,7 +34,7 @@ class VersionValidator
 	 * Field values and the version that introduced them, as
 	 * "document path => [value => version]".
 	 */
-	private const VALUE_INTRODUCED_IN = [
+	public const VALUE_INTRODUCED_IN = [
 		'components.securitySchemes.*.type' => [
 			SecurityScheme::TYPE_MUTUAL_TLS => Version::V3_1,
 		],
@@ -43,7 +43,7 @@ class VersionValidator
 	/**
 	 * Required fields and the version that made them optional.
 	 */
-	private const FIELD_OPTIONAL_SINCE = [
+	public const FIELD_OPTIONAL_SINCE = [
 		'paths' => Version::V3_1,
 	];
 
