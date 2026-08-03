@@ -1,10 +1,50 @@
 openapi: "3.1.1"
+jsonSchemaDialect: https://json-schema.org/draft/2020-12/schema
 info:
   title: Complete 3.1 document
+  summary: Uses every field OpenAPI 3.1 defines.
   version: 1.0.0
+  license:
+    name: MIT
+    identifier: MIT
 paths:
   /pets:
     get:
       responses:
         '200':
           description: A list of pets
+          content:
+            application/json:
+              schema:
+                type: [array, "null"]
+                prefixItems:
+                  - type: string
+                unevaluatedProperties: false
+                contentMediaType: application/json
+webhooks:
+  petCreated:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              const: null
+      responses:
+        '200':
+          description: Acknowledged
+  petDeleted:
+    $ref: '#/components/pathItems/petEvent'
+    summary: Reference summary
+    description: Reference description
+components:
+  pathItems:
+    petEvent:
+      post:
+        responses:
+          '200':
+            description: Acknowledged
+  securitySchemes:
+    mtls:
+      type: mutualTLS
+      description: Client certificate authentication
