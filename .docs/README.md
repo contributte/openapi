@@ -1,10 +1,11 @@
 # Contributte OpenApi
 
-Pure PHP OpenAPI 3.0 implementation for Nette Framework.
+Pure PHP OpenAPI implementation for Nette Framework, supporting 3.0 and 3.1.
 
 ## Content
 
 - [Setup](#setup)
+- [Supported versions](#supported-versions)
 - [OpenAPI](#tracy)
 - [Version validation](#version-validation)
 - [Tracy](#tracy)
@@ -45,6 +46,18 @@ composer require contributte/openapi
 - [Server.php](../src/Schema/Server.php)
 - [ServerVariable.php](../src/Schema/ServerVariable.php)
 - [Tag.php](../src/Schema/Tag.php)
+
+## Supported versions
+
+| OpenAPI | Support |
+|---------|---------|
+| 3.0     | full    |
+| 3.1     | full    |
+
+Both claims are backed by a test, not by hand: `tests/Cases/VersionSupportTest.php` round-trips
+a complete document per version - one that uses every field the version defines - and requires
+`VersionValidator` to report nothing against it. See `tests/Cases/Schema/examples/complete-3-0.yaml`
+and `complete-3-1.yaml`.
 
 ## Version validation
 
