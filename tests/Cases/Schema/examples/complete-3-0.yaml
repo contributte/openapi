@@ -39,8 +39,183 @@ externalDocs:
   url: https://example.com/docs
 x-vendor-flag: true
 paths:
-  /pets:
+  /pets/{petId}:
+    summary: A single pet
+    description: Operations on one pet
+    servers:
+      - url: https://pets.example.com
+    parameters:
+      - name: petId
+        in: path
+        description: Pet identifier
+        required: true
+        deprecated: false
+        style: simple
+        explode: false
+        schema:
+          type: string
+        example: abc123
     get:
+      tags:
+        - pets
+      summary: Read a pet
+      description: Returns a single pet
+      externalDocs:
+        description: Operation documentation
+        url: https://example.com/docs/read-pet
+      operationId: readPet
+      deprecated: true
+      parameters:
+        - name: verbose
+          in: query
+          description: Return the long form
+          required: false
+          allowEmptyValue: true
+          allowReserved: true
+          style: form
+          explode: true
+          schema:
+            type: boolean
+          examples:
+            enabled:
+              summary: Verbose enabled
+              description: Ask for the long form
+              value: true
+        - name: X-Trace
+          in: header
+          required: false
+          style: simple
+          schema:
+            type: string
+        - name: session
+          in: cookie
+          required: false
+          style: form
+          content:
+            application/json:
+              schema:
+                type: object
       responses:
         '200':
-          description: A list of pets
+          description: The pet
+          headers:
+            X-Rate-Limit:
+              description: Calls left this hour
+              required: false
+              deprecated: false
+              style: simple
+              explode: false
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: abc123
+              examples:
+                first:
+                  summary: The first pet
+                  value:
+                    id: abc123
+          links:
+            owner:
+              operationId: readOwner
+              parameters:
+                ownerId: $response.body#/ownerId
+              requestBody: $response.body
+              description: The owner of this pet
+              server:
+                url: https://owners.example.com
+                description: Owner service
+        default:
+          description: Unexpected error
+      callbacks:
+        petStatus:
+          '{$request.body#/callbackUrl}':
+            post:
+              requestBody:
+                description: Status update
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      type: object
+              responses:
+                '200':
+                  description: Acknowledged
+      security:
+        - api_key: []
+      servers:
+        - url: https://pets.example.com/v1
+    put:
+      operationId: replacePet
+      requestBody:
+        description: The replacement pet
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The replaced pet
+    post:
+      operationId: uploadPetPhoto
+      requestBody:
+        description: A multipart upload
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profile:
+                  type: object
+                avatar:
+                  type: string
+                  format: binary
+            encoding:
+              avatar:
+                contentType: image/png
+                headers:
+                  X-Checksum:
+                    description: Upload checksum
+                    schema:
+                      type: string
+                style: form
+                explode: false
+                allowReserved: false
+      responses:
+        '201':
+          description: Photo stored
+    delete:
+      operationId: deletePet
+      responses:
+        '204':
+          description: Deleted
+    options:
+      operationId: describePet
+      responses:
+        '200':
+          description: Allowed methods
+    head:
+      operationId: checkPet
+      responses:
+        '200':
+          description: Pet exists
+    patch:
+      operationId: updatePet
+      requestBody:
+        content:
+          application/merge-patch+json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: The updated pet
+    trace:
+      operationId: tracePet
+      responses:
+        '200':
+          description: Trace result
