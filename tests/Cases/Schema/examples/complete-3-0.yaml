@@ -108,6 +108,7 @@ paths:
               schema:
                 type: integer
               example: 42
+              x-internal: true
             X-Trace-Id:
               description: Trace identifier
               required: false
@@ -287,6 +288,7 @@ components:
       description: Key based authentication
       name: api_key
       in: header
+      x-internal: true
     basic_auth:
       type: http
       description: Basic authentication
@@ -304,6 +306,7 @@ components:
           refreshUrl: https://example.com/oauth/refresh
           scopes:
             read:pets: Read pets
+          x-internal: true
         password:
           tokenUrl: https://example.com/oauth/token
           refreshUrl: https://example.com/oauth/refresh
