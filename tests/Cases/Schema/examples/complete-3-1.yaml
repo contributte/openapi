@@ -147,9 +147,11 @@ paths:
             application/json:
               schema:
                 type: [object, "null"]
-                const: null
-                prefixItems:
-                  - type: string
+                properties:
+                  history:
+                    type: array
+                    prefixItems:
+                      - type: string
                 unevaluatedProperties: false
                 contentMediaType: application/json
               example:
