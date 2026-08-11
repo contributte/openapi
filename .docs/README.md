@@ -114,3 +114,18 @@ tracy:
 	bar:
 		- @swaggerPanel
 ```
+
+The panel inlines its own copy of Swagger UI, so it renders the versions that copy
+understands. Swagger UI renders OpenAPI 3.1 from 5.0.0 on.
+
+To move the copy to another release:
+
+```bash
+php tools/update-swagger-ui.php 5.32.12
+```
+
+The script stores the scripts as distributed and confines every selector of the
+stylesheet to `#tracy-debug`, because the panel renders inside a host page it must not
+style. It aborts on a selector it cannot place rather than letting Swagger UI reach the
+page, so a release that styles the page in a new way stops the update instead of
+surprising an application.
