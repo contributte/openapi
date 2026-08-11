@@ -8,3 +8,4 @@ README.md export-ignore
 phpstan.neon export-ignore
 ruleset.xml export-ignore
 tests export-ignore
+tools export-ignore
